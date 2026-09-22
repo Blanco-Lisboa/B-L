@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.blancolisboa</groupId>
+  <artifactId>painel-bl</artifactId>
+  <version>0.1.0</version>
+  <name>Painel Blanco &amp; Lisboa</name>
+  <description>Painel da holding B&amp;L — Java + JavaFX + CSS + Spring (produto real da prévia HTML)</description>
+
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>3.2.5</version>
+    <relativePath/>
+  </parent>
+
+  <properties>
+    <java.version>21</java.version>
+    <javafx.version>21.0.3</javafx.version>
+  </properties>
+
+  <dependencies>
+    <!-- Spring -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+
+    <!-- JavaFX -->
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-controls</artifactId>
+      <version>${javafx.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-fxml</artifactId>
+      <version>${javafx.version}</version>
+    </dependency>
+
+    <!-- Banco (Supabase Postgres) — habilite quando ligar no banco real.
+         Veja README + application.properties (perfil 'db'). -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-data-jpa</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <scope>runtime</scope>
+      <optional>true</optional>
+    </dependency>
+
+    <!-- Chromium embutido (JCEF) para renderizar o front HTML exato. Nao e Electron/Tauri. -->
+    <dependency>
+      <groupId>me.friwi</groupId>
+      <artifactId>jcefmaven</artifactId>
+      <version>146.0.10</version>
+    </dependency>
+    <!-- jcefmaven usa commons-compress, que exige commons-lang3 3.18+; o Spring fixa 3.13. Sobe a versao. -->
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>3.18.0</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <!-- roda a app: mvn javafx:run -->
+      <plugin>
+        <groupId>org.openjfx</groupId>
+        <artifactId>javafx-maven-plugin</artifactId>
+        <version>0.0.8</version>
+        <configuration>
+          <mainClass>com.blancolisboa.painel.PainelApplication</mainClass>
+        </configuration>
+      </plugin>
+      <!-- empacota: mvn -Pdb spring-boot:run (com banco) -->
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <configuration>
+          <mainClass>com.blancolisboa.painel.PainelApplication</mainClass>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

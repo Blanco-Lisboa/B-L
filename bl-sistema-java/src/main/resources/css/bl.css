@@ -1,0 +1,101 @@
+/* ===== Design System Blanco & Lisboa — JavaFX CSS ===== */
+.root{
+  navy:  #011D3A;
+  navy2: #0A2A4C;
+  gold:  #EDB449;
+  goldDark: #B98A2E;
+  paper: #F6F8FA;
+  panel: #FFFFFF;
+  panel2:#EDF2F7;
+  ink:   #101820;
+  muted: #6B7684;
+  line:  #E1E6EB;
+  -fx-font-family: "Segoe UI", "Public Sans", sans-serif;
+  -fx-background-color: paper;
+}
+
+/* ---- sidebar ---- */
+.sidebar{ -fx-background-color: navy; -fx-pref-width: 220px; -fx-min-width: 220px; -fx-padding: 16 12 16 12; -fx-spacing: 4; }
+.brand-title{ -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13px; }
+.brand-sub{ -fx-text-fill: gold; -fx-font-size: 11px; -fx-font-weight: bold; }
+.nav-item{ -fx-background-color: transparent; -fx-text-fill: #DBE4EE; -fx-font-size: 14px; -fx-font-weight: 600;
+           -fx-padding: 10 12 10 12; -fx-background-radius: 8; -fx-cursor: hand; }
+.nav-item:hover{ -fx-background-color: rgba(255,255,255,0.06); -fx-text-fill: white; }
+.nav-item-active{ -fx-background-color: rgba(255,255,255,0.10); -fx-text-fill: white;
+                  -fx-border-color: gold; -fx-border-width: 0 0 0 3; }
+
+/* ---- content ---- */
+.content{ -fx-padding: 24; -fx-background-color: paper; }
+.h1{ -fx-font-size: 26px; -fx-font-weight: 800; -fx-text-fill: ink; }
+.sub{ -fx-font-size: 12.5px; -fx-text-fill: muted; }
+.sec-t{ -fx-font-size: 10.5px; -fx-text-fill: #96A0AC; -fx-font-weight: 700; }
+
+/* ---- cards / kpis ---- */
+.card{ -fx-background-color: panel; -fx-background-radius: 12; -fx-border-color: line; -fx-border-radius: 12;
+       -fx-padding: 16; -fx-effect: dropshadow(gaussian, rgba(1,29,58,0.08), 10, 0, 0, 2); }
+.kpi-lab{ -fx-font-size: 10px; -fx-text-fill: muted; -fx-font-weight: 700; }
+.kpi-num{ -fx-font-size: 30px; -fx-font-weight: 800; -fx-text-fill: ink; }
+
+/* ---- botões ---- */
+.btn-cta{ -fx-background-color: gold; -fx-text-fill: navy; -fx-font-weight: bold; -fx-background-radius: 6;
+          -fx-padding: 9 16 9 16; -fx-cursor: hand; }
+.btn-cta:hover{ -fx-background-color: goldDark; -fx-text-fill: white; }
+.btn-ghost{ -fx-background-color: panel; -fx-text-fill: ink; -fx-border-color: line; -fx-border-radius: 6;
+            -fx-background-radius: 6; -fx-padding: 8 14 8 14; -fx-cursor: hand; }
+.btn-ghost:hover{ -fx-border-color: navy2; }
+.icon-btn{ -fx-background-color: panel; -fx-border-color: line; -fx-border-radius: 8; -fx-background-radius: 8;
+           -fx-text-fill: ink; -fx-min-width: 30px; -fx-min-height: 30px; -fx-cursor: hand; -fx-font-size: 15px; }
+.icon-btn:hover{ -fx-border-color: navy2; -fx-text-fill: navy; }
+
+/* ---- empresa ---- */
+.emp-logo{ -fx-text-fill: white; -fx-font-weight: 800; -fx-font-size: 15px; }
+.emp-nome{ -fx-font-size: 16px; -fx-font-weight: 700; -fx-text-fill: ink; }
+.emp-cat{ -fx-font-size: 10.5px; -fx-text-fill: muted; }
+.pill{ -fx-font-size: 10px; -fx-font-weight: 700; -fx-padding: 3 8 3 8; -fx-background-radius: 100;
+       -fx-background-color: panel2; -fx-text-fill: muted; }
+.pill.on{ -fx-background-color: #E6F4EC; -fx-text-fill: #2E9E5B; }
+.pill.off{ -fx-background-color: panel2; -fx-text-fill: muted; }
+
+/* ---- usuários ---- */
+.avatar{ -fx-min-width: 28px; -fx-min-height: 28px; -fx-background-radius: 50; -fx-background-color: #6B7684;
+         -fx-text-fill: white; -fx-font-size: 11px; -fx-font-weight: 700; -fx-alignment: center; }
+.u-nome{ -fx-font-size: 12.5px; -fx-text-fill: ink; }
+.nivel{ -fx-font-size: 9px; -fx-font-weight: 700; -fx-padding: 2 7 2 7; -fx-background-radius: 100;
+        -fx-background-color: panel2; -fx-text-fill: muted; }
+.nivel.ceo{ -fx-background-color: #FBEFD6; -fx-text-fill: goldDark; }
+.nivel.diretor{ -fx-background-color: #EDE9FE; -fx-text-fill: #6D28D9; }
+.nivel.gerente{ -fx-background-color: #FBF1DC; -fx-text-fill: #E0A62B; }
+.nivel.assistente{ -fx-background-color: #E8EFFD; -fx-text-fill: #2F6FED; }
+.nivel.colaborador{ -fx-background-color: panel2; -fx-text-fill: muted; }
+
+.scroll-pane, .scroll-pane .viewport{ -fx-background-color: transparent; }
+
+/* ---- textos/segmentos/tabelas ---- */
+.card-tit{ -fx-font-size: 15px; -fx-font-weight: 700; -fx-text-fill: ink; }
+.cod{ -fx-font-family: "Consolas", monospace; -fx-font-size: 11px; -fx-text-fill: muted; }
+.seg-b{ -fx-background-color: panel; -fx-border-color: line; -fx-border-radius: 8; -fx-background-radius: 8; -fx-text-fill: ink; -fx-padding: 8 14; -fx-font-weight: 600; -fx-cursor: hand; }
+.seg-b.on{ -fx-background-color: navy; -fx-text-fill: white; -fx-border-color: navy; }
+.busca-field{ -fx-background-color: panel; -fx-border-color: line; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 9 12; }
+.busca-field:focused{ -fx-border-color: navy600; }
+.tbl{ -fx-border-color: line; -fx-border-radius: 12; -fx-background-radius: 12; -fx-background-color: panel; }
+.tbl-head{ -fx-background-color: panel2; -fx-padding: 11 14; -fx-background-radius: 12 12 0 0; }
+.tbl-col{ -fx-font-size: 9.5px; -fx-font-weight: 700; -fx-text-fill: muted; }
+.tbl-row{ -fx-padding: 11 14; -fx-border-color: line2; -fx-border-width: 1 0 0 0; -fx-alignment: center-left; }
+.tbl-row:hover{ -fx-background-color: panel2; }
+
+/* ---- chat (TEAM's) ---- */
+.chat-grp{ -fx-font-size: 9.5px; -fx-text-fill: rgba(255,255,255,0.45); -fx-font-weight: 700; -fx-padding: 12 10 5 10; }
+.chat-nav{ -fx-text-fill: #CDD8E6; -fx-font-size: 13.5px; -fx-font-weight: 600; -fx-padding: 9 11; -fx-background-radius: 8; -fx-cursor: hand; }
+.chat-nav:hover{ -fx-background-color: rgba(255,255,255,0.06); -fx-text-fill: white; }
+.chat-cab{ -fx-padding: 13 18; -fx-border-color: line; -fx-border-width: 0 0 1 0; -fx-background-color: panel; }
+.chat-tool{ -fx-background-color: panel; -fx-border-color: line; -fx-border-radius: 100; -fx-background-radius: 100; -fx-text-fill: ink2; -fx-font-size: 12px; -fx-padding: 6 12; -fx-cursor: hand; }
+.chat-tool:hover{ -fx-border-color: navy600; -fx-text-fill: navy700; }
+.chat-enviar{ -fx-background-color: navy; -fx-text-fill: gold; -fx-background-radius: 10; -fx-min-width: 42px; -fx-min-height: 34px; -fx-cursor: hand; }
+.icon-btn{ -fx-background-color: panel; -fx-border-color: line; -fx-border-radius: 9; -fx-background-radius: 9; -fx-text-fill: ink2; -fx-min-width: 34px; -fx-min-height: 34px; -fx-cursor: hand; }
+.icon-btn:hover{ -fx-border-color: navy600; -fx-text-fill: navy700; }
+
+/* ---- wizard steps ---- */
+.step{ -fx-font-size: 10px; -fx-font-weight: 700; -fx-padding: 4 9; -fx-background-radius: 100; -fx-background-color: panel2; -fx-text-fill: muted; }
+.step.on{ -fx-background-color: navy; -fx-text-fill: gold; }
+.step.done{ -fx-background-color: #E6F4EC; -fx-text-fill: #2E9E5B; }
+.toggle-button.seg-b:selected{ -fx-background-color: navy; -fx-text-fill: white; -fx-border-color: navy; }

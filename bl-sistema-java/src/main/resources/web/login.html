@@ -1,0 +1,129 @@
+﻿<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Entrar — Blanco & Lisboa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Public+Sans:wght@400;500;600;700&display=swap">
+<style>
+  :root{
+    --navy-900:#011D3A; --navy-700:#16395F; --gold-500:#EDB449; --gold-600:#D99F30;
+    --paper:#F6F8FA; --ink:#101820; --ink-2:#3D4854; --muted:#6B7684; --line:#E1E6EB;
+    --serif:'Archivo','Segoe UI',Arial,sans-serif; --sans:'Public Sans','Segoe UI',Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;font-family:var(--sans);color:var(--ink);
+    background:radial-gradient(120% 85% at 0% 0%,rgba(237,180,73,.16),rgba(237,180,73,0) 52%),linear-gradient(160deg,#03294f 0%,#011D3A 55%,#01152b 100%);
+    display:grid;place-items:center;min-height:100vh}
+  .card{width:390px;max-width:92vw;background:var(--paper);border-radius:14px;padding:34px 32px;
+    box-shadow:0 22px 60px rgba(0,0,0,.35);text-align:center}
+  .brand{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:24px}
+  .bt{text-align:left}
+  .mark{width:46px;height:46px;border-radius:10px;background:var(--navy-900);color:var(--gold-500);
+    display:grid;place-items:center;font-family:var(--serif);font-weight:900;font-size:15px;letter-spacing:.02em}
+  .bt b{display:block;font-family:var(--serif);font-weight:900;font-size:15px;color:var(--navy-900);letter-spacing:.02em;line-height:1.05}
+  .bt span{display:block;font-family:var(--serif);font-weight:700;font-size:11px;letter-spacing:.16em;color:var(--gold-600)}
+  h1{font-family:var(--serif);font-weight:800;font-size:21px;margin:0 0 4px;color:var(--ink)}
+  .sub{font-size:13px;color:var(--muted);margin-bottom:18px}
+  label.fld{display:block;text-align:left;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:14px 0 6px}
+  input[type=email],input[type=password]{width:100%;border:1px solid var(--line);border-radius:8px;padding:12px 13px;font:inherit;font-size:14px;color:var(--ink);background:#fff;text-align:left}
+  input:focus{outline:0;border-color:var(--navy-700);box-shadow:0 0 0 3px rgba(37,75,116,.22)}
+  .opts{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px;text-align:left}
+  .rmb{display:flex;align-items:center;gap:7px;margin:0;font-size:12.5px;letter-spacing:0;text-transform:none;color:var(--ink-2);font-weight:500;cursor:pointer}
+  .rmb input{width:15px;height:15px;accent-color:var(--navy-700);margin:0}
+  .link{font-size:12.5px;color:var(--navy-700);text-decoration:none;font-weight:600;cursor:pointer;background:none;border:0;padding:0;font-family:inherit}
+  .link:hover{color:var(--gold-600);text-decoration:underline}
+  .btn{width:100%;margin-top:20px;border:0;border-radius:8px;padding:13px;background:var(--navy-900);color:#F4F7FA;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+  .btn:hover{background:var(--navy-700)}
+  .btn:disabled{opacity:.6;cursor:default}
+  .err{margin-top:14px;font-size:13px;color:#D64545;min-height:18px;text-align:center}
+  .msg{margin-top:6px;font-size:12.5px;color:#2E9E5B;min-height:16px;text-align:center}
+  .foot{margin-top:16px;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:center;font-weight:700}
+</style></head>
+<body>
+  <div class="card">
+    <div class="brand"><div class="mark">B&amp;L</div><div class="bt"><b>BLANCO</b><span>&amp; LISBOA</span></div></div>
+    <h1>Entrar</h1>
+    <div class="sub">Painel do CEO — acesso restrito</div>
+    <form id="f" autocomplete="on">
+      <label class="fld" for="email">E-mail</label>
+      <input id="email" type="email" autocomplete="username" required>
+      <label class="fld" for="senha">Senha</label>
+      <input id="senha" type="password" autocomplete="current-password" required>
+      <div class="opts">
+        <label class="rmb"><input type="checkbox" id="lembrar"> Salvar senha</label>
+        <button type="button" class="link" id="esqueci">Esqueci a senha</button>
+      </div>
+      <button class="btn" id="go" type="submit">Entrar</button>
+      <div class="err" id="err" role="alert"></div>
+      <div class="msg" id="msg"></div>
+    </form>
+    <div class="foot">Blanco &amp; Lisboa</div>
+  </div>
+  <script>
+    var SUPA_URL = 'https://wfqcoocfastgsfgegpcm.supabase.co';
+    var ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndmcWNvb2NmYXN0Z3NmZ2VncGNtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk0OTI2MTcsImV4cCI6MjEwNTA2ODYxN30.31bgQ0VWxDzck3G6BZJrQZbf8OAv4AOKQZPfjaroPmk';
+    var f = document.getElementById('f'), err = document.getElementById('err'), msg = document.getElementById('msg'), go = document.getElementById('go');
+    var elEmail = document.getElementById('email'), elSenha = document.getElementById('senha'), elLembrar = document.getElementById('lembrar');
+    // "Salvar senha": guarda um TOKEN de sessão revogável (nunca a senha em si).
+    function autoLogin(rt) {
+      go.disabled = true; go.textContent = 'Entrando...';
+      fetch(SUPA_URL + '/auth/v1/token?grant_type=refresh_token', {
+        method: 'POST', headers: { 'Content-Type': 'application/json', 'apikey': ANON },
+        body: JSON.stringify({ refresh_token: rt })
+      })
+      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (res) {
+        if (res.ok && res.j && res.j.access_token) {
+          try { localStorage.setItem('bl_login', JSON.stringify({ email: elEmail.value.trim(), refresh_token: res.j.refresh_token })); } catch (e) {}
+          try { sessionStorage.setItem('bl_sessao', JSON.stringify(res.j)); } catch (e) {}
+          window.location.href = 'painel.html';
+        } else { try { localStorage.removeItem('bl_login'); } catch (e) {} go.disabled = false; go.textContent = 'Entrar'; }
+      })
+      .catch(function () { go.disabled = false; go.textContent = 'Entrar'; });
+    }
+    // Login lembrado (se houver) — só e-mail + token, sem senha
+    try {
+      var sv = JSON.parse(localStorage.getItem('bl_login') || 'null');
+      if (sv && sv.email) { elEmail.value = sv.email; elLembrar.checked = true; if (sv.refresh_token) autoLogin(sv.refresh_token); }
+    } catch (e) {}
+    f.addEventListener('submit', function (e) {
+      e.preventDefault(); err.textContent = ''; msg.textContent = ''; go.disabled = true; go.textContent = 'Entrando...';
+      var email = elEmail.value.trim(), senha = elSenha.value;
+      fetch(SUPA_URL + '/auth/v1/token?grant_type=password', {
+        method: 'POST', headers: { 'Content-Type': 'application/json', 'apikey': ANON },
+        body: JSON.stringify({ email: email, password: senha })
+      })
+      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (res) {
+        if (res.ok && res.j && res.j.access_token) {
+          try {
+            if (elLembrar.checked) localStorage.setItem('bl_login', JSON.stringify({ email: email, refresh_token: res.j.refresh_token }));
+            else localStorage.removeItem('bl_login');
+          } catch (e) {}
+          try { sessionStorage.setItem('bl_sessao', JSON.stringify(res.j)); } catch (e) {}
+          window.location.href = 'painel.html';
+        } else {
+          err.textContent = (res.j && (res.j.error_description || res.j.msg || res.j.error)) || 'E-mail ou senha inválidos.';
+          go.disabled = false; go.textContent = 'Entrar';
+        }
+      })
+      .catch(function () { err.textContent = 'Falha de conexão. Tente de novo.'; go.disabled = false; go.textContent = 'Entrar'; });
+    });
+    // Esqueci a senha -> recover do Supabase (envia e-mail pelo banco novo)
+    document.getElementById('esqueci').addEventListener('click', function () {
+      err.textContent = ''; msg.textContent = '';
+      var email = elEmail.value.trim();
+      if (!email) { err.textContent = 'Digite seu e-mail primeiro para recuperar a senha.'; return; }
+      fetch(SUPA_URL + '/auth/v1/recover', {
+        method: 'POST', headers: { 'Content-Type': 'application/json', 'apikey': ANON },
+        body: JSON.stringify({ email: email })
+      })
+      .then(function (r) {
+        if (r.ok) { msg.textContent = 'Se o e-mail existir, enviamos um link de recuperação para ele.'; }
+        else { return r.json().then(function (j) { err.textContent = (j.error_description || j.msg || 'Não foi possível enviar agora.'); }); }
+      })
+      .catch(function () { err.textContent = 'Falha de conexão. Tente de novo.'; });
+    });
+  </script>
+</body></html>

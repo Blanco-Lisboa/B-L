@@ -1,0 +1,29 @@
+# Build / artefatos
+target/
+**/target/
+build/
+*.class
+*.jar
+*.war
+
+# JCEF (Chromium embutido, baixado no build — grande demais pro git)
+**/jcef-bundle/
+jcef-bundle/
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+*.log
+
+# Segredos (NUNCA versionar)
+CHAVE API CNPJJA.txt
+**/CHAVE*API*.txt
+**/*TOKEN*.txt
+*.env
+.env
+application-secret*.properties
+
+# SO
+.DS_Store
+Thumbs.db
