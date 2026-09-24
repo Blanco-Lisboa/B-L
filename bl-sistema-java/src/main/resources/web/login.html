@@ -19,8 +19,7 @@
     box-shadow:0 22px 60px rgba(0,0,0,.35);text-align:center}
   .brand{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:24px}
   .bt{text-align:left}
-  .mark{width:46px;height:46px;border-radius:10px;background:var(--navy-900);color:var(--gold-500);
-    display:grid;place-items:center;font-family:var(--serif);font-weight:900;font-size:15px;letter-spacing:.02em}
+  .mark{width:84px;height:84px;display:grid;place-items:center}
   .bt b{display:block;font-family:var(--serif);font-weight:900;font-size:15px;color:var(--navy-900);letter-spacing:.02em;line-height:1.05}
   .bt span{display:block;font-family:var(--serif);font-weight:700;font-size:11px;letter-spacing:.16em;color:var(--gold-600)}
   h1{font-family:var(--serif);font-weight:800;font-size:21px;margin:0 0 4px;color:var(--ink)}
@@ -42,7 +41,7 @@
 </style></head>
 <body>
   <div class="card">
-    <div class="brand"><div class="mark">B&amp;L</div><div class="bt"><b>BLANCO</b><span>&amp; LISBOA</span></div></div>
+    <div class="brand"><div class="mark"><img src="logo-bl.png" alt="Blanco &amp; Lisboa" style="width:100%;height:100%;object-fit:contain"></div></div>
     <h1>Entrar</h1>
     <div class="sub">Painel do CEO — acesso restrito</div>
     <form id="f" autocomplete="on">
@@ -63,6 +62,16 @@
   <script>
     var SUPA_URL = 'https://wfqcoocfastgsfgegpcm.supabase.co';
     var ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndmcWNvb2NmYXN0Z3NmZ2VncGNtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk0OTI2MTcsImV4cCI6MjEwNTA2ODYxN30.31bgQ0VWxDzck3G6BZJrQZbf8OAv4AOKQZPfjaroPmk';
+    var PEDIR_REDEF_URL = 'https://wfqcoocfastgsfgegpcm.supabase.co/functions/v1/ceo-pedir-redefinicao';
+    function irParaDestino(email, token) {
+      fetch(SUPA_URL + '/rest/v1/usuarios_internos?select=senha_provisoria&email=eq.' + encodeURIComponent(email) + '&limit=1', { headers: { apikey: ANON, Authorization: 'Bearer ' + token } })
+        .then(function (r) { return r.json(); })
+        .then(function (arr) {
+          var prov = Array.isArray(arr) && arr[0] && arr[0].senha_provisoria;
+          window.location.href = prov ? 'nova-senha.html' : 'painel.html';
+        })
+        .catch(function () { window.location.href = 'painel.html'; });
+    }
     var f = document.getElementById('f'), err = document.getElementById('err'), msg = document.getElementById('msg'), go = document.getElementById('go');
     var elEmail = document.getElementById('email'), elSenha = document.getElementById('senha'), elLembrar = document.getElementById('lembrar');
     // "Salvar senha": guarda um TOKEN de sessão revogável (nunca a senha em si).
@@ -77,7 +86,7 @@
         if (res.ok && res.j && res.j.access_token) {
           try { localStorage.setItem('bl_login', JSON.stringify({ email: elEmail.value.trim(), refresh_token: res.j.refresh_token })); } catch (e) {}
           try { sessionStorage.setItem('bl_sessao', JSON.stringify(res.j)); } catch (e) {}
-          window.location.href = 'painel.html';
+          irParaDestino(elEmail.value.trim(), res.j.access_token);
         } else { try { localStorage.removeItem('bl_login'); } catch (e) {} go.disabled = false; go.textContent = 'Entrar'; }
       })
       .catch(function () { go.disabled = false; go.textContent = 'Entrar'; });
@@ -102,7 +111,7 @@
             else localStorage.removeItem('bl_login');
           } catch (e) {}
           try { sessionStorage.setItem('bl_sessao', JSON.stringify(res.j)); } catch (e) {}
-          window.location.href = 'painel.html';
+          irParaDestino(email, res.j.access_token);
         } else {
           err.textContent = (res.j && (res.j.error_description || res.j.msg || res.j.error)) || 'E-mail ou senha inválidos.';
           go.disabled = false; go.textContent = 'Entrar';
@@ -115,13 +124,14 @@
       err.textContent = ''; msg.textContent = '';
       var email = elEmail.value.trim();
       if (!email) { err.textContent = 'Digite seu e-mail primeiro para recuperar a senha.'; return; }
-      fetch(SUPA_URL + '/auth/v1/recover', {
-        method: 'POST', headers: { 'Content-Type': 'application/json', 'apikey': ANON },
+      fetch(PEDIR_REDEF_URL, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: email })
       })
-      .then(function (r) {
-        if (r.ok) { msg.textContent = 'Se o e-mail existir, enviamos um link de recuperação para ele.'; }
-        else { return r.json().then(function (j) { err.textContent = (j.error_description || j.msg || 'Não foi possível enviar agora.'); }); }
+      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (res) {
+        if (res.ok && res.j && res.j.ok) { msg.textContent = res.j.mensagem || 'Se o e-mail existir, enviamos um link de redefinição para ele.'; }
+        else { err.textContent = (res.j && res.j.erro) || 'Não foi possível enviar agora.'; }
       })
       .catch(function () { err.textContent = 'Falha de conexão. Tente de novo.'; });
     });

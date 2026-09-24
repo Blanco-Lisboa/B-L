@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Redefinição de senha — IT.IA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     REDEFINIÇÃO DE SENHA — CEO · Identidade IT.IA
+     Arquivo único. HTML + CSS + JS inline. Sem framework.
+     A página apenas EXIBE o que o backend responder.
+     ============================================================ */
+
+  :root{
+    --preto:#050506;
+    --carvao:#151517;
+    --grafite:#2E2E31;
+    --nevoa:#B9B9BE;
+    --branco:#FFFFFF;
+    --vermelho:#FF0000;
+    --ink:#050506;
+    --ink-soft:#4a4a4e;
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+
+  html,body{ height:100%; }
+
+  body{
+    min-height:100%;
+    font-family:"IBM Plex Sans", system-ui, sans-serif;
+    color:var(--ink);
+    /* Fundo: preto institucional + textura de grid (linhas 1px a cada 64px) */
+    background-color:var(--preto);
+    background-image:
+      radial-gradient(circle at 50% 24%, rgba(255,255,255,.06), rgba(255,255,255,0) 58%),
+      linear-gradient(var(--carvao) 1px, transparent 1px),
+      linear-gradient(90deg, var(--carvao) 1px, transparent 1px);
+    background-size: 100% 100%, 64px 64px, 64px 64px;
+    background-position: center, center, center;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:32px 20px;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* ---- Cartão central ---- */
+  .card{
+    position:relative;
+    width:100%;
+    max-width:460px;
+    background:var(--branco);
+    /* Padrão do instituto: cantos quadrados, sem sombra, filete de acento no topo */
+    border-radius:0;
+    border-top:3px solid var(--vermelho);
+    box-shadow:none;
+    padding:44px 40px 40px;
+  }
+
+  /* ---- Cabeçalho de marca ---- */
+  .brand{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    margin-bottom:30px;
+  }
+  .logo{
+    font-family:"Space Grotesk", sans-serif;
+    font-weight:700;
+    font-size:22px;
+    letter-spacing:-0.03em;
+    color:var(--preto);
+    line-height:1;
+  }
+  .logo .dot{ color:var(--vermelho); }
+
+  .eyebrow{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:10px;
+    font-weight:600;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    text-align:right;
+  }
+  .eyebrow .reddot{
+    width:7px; height:7px; border-radius:50%;
+    background:var(--vermelho); flex:0 0 auto;
+  }
+
+  /* ---- Blocos de estado ---- */
+  .state{ display:none; }
+  .state.is-active{ display:block; animation:fade .2s cubic-bezier(.2,.7,.2,1); }
+  @keyframes fade{ from{ opacity:0; transform:translateY(4px);} to{ opacity:1; transform:none; } }
+
+  h1{
+    font-family:"Space Grotesk", sans-serif;
+    font-weight:600;
+    font-size:28px;
+    line-height:1.15;
+    letter-spacing:-0.01em;
+    color:var(--preto);
+    margin-bottom:14px;
+  }
+
+  p{
+    font-size:16px;
+    line-height:1.6;
+    color:var(--ink);
+    margin-bottom:14px;
+    text-wrap:pretty;
+  }
+  p.small{
+    font-size:13.5px;
+    line-height:1.55;
+    color:var(--ink-soft);
+    margin-bottom:0;
+  }
+  .nome{ font-weight:600; }
+
+  /* ---- Caixa da senha ---- */
+  .pw-wrap{ margin:22px 0 18px; }
+  .pw-label{
+    font-size:10px; font-weight:600; letter-spacing:0.18em;
+    text-transform:uppercase; color:var(--ink-soft); margin-bottom:8px;
+  }
+  .pw-box{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:2px;
+    border:2px solid var(--vermelho);
+    background:#fafafa;
+    padding:20px 16px;
+    font-family:"IBM Plex Mono", monospace;
+    font-weight:500;
+    font-size:30px;
+    letter-spacing:0.16em;
+    color:var(--preto);
+    word-break:break-all;
+    user-select:all;
+    text-align:center;
+  }
+
+  /* ---- Botões ---- */
+  .btn{
+    -webkit-appearance:none; appearance:none;
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    width:100%;
+    font-family:"IBM Plex Sans", sans-serif;
+    font-size:15px; font-weight:600;
+    padding:14px 20px;
+    border:none; border-radius:0; cursor:pointer;
+    background:var(--preto); color:var(--branco);
+    transition:background .2s cubic-bezier(.2,.7,.2,1), opacity .12s;
+    margin-top:6px;
+  }
+  .btn:hover{ background:var(--grafite); }
+  .btn:active{ opacity:.85; }
+  .btn.copied{ background:var(--grafite); }
+
+  /* ---- Spinner (Estado 1) ---- */
+  .loading{ text-align:center; padding:20px 0 8px; }
+  .spinner{
+    width:40px; height:40px; margin:0 auto 22px;
+    border:3px solid var(--nevoa);
+    border-top-color:var(--vermelho);
+    border-radius:50%;
+    animation:spin .8s linear infinite;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  .loading p{ color:var(--ink-soft); font-size:15px; margin:0; }
+
+  /* ---- Rodapé ---- */
+  .foot{
+    margin-top:28px; padding-top:18px;
+    border-top:1px solid #e6e6e8;
+    font-size:10px; font-weight:600; letter-spacing:0.16em;
+    text-transform:uppercase; color:var(--nevoa);
+    text-align:center;
+  }
+
+  /* ---- Estado de erro: barra de acento vertical ---- */
+  .err-mark{
+    width:34px; height:3px; background:var(--vermelho);
+    margin-bottom:20px;
+  }
+
+  /* ---- Switcher de pré-visualização (só com ?preview=1) ---- */
+  #preview-bar{
+    position:fixed; left:0; right:0; bottom:0; z-index:99;
+    display:none; gap:6px; flex-wrap:wrap; justify-content:center;
+    background:var(--carvao); border-top:1px solid var(--grafite);
+    padding:10px;
+  }
+  #preview-bar.on{ display:flex; }
+  #preview-bar button{
+    font-family:"IBM Plex Mono", monospace; font-size:11px;
+    background:var(--preto); color:var(--nevoa);
+    border:1px solid var(--grafite); padding:6px 10px; cursor:pointer;
+  }
+  #preview-bar button:hover{ color:var(--branco); border-color:var(--vermelho); }
+
+  @media (max-width:480px){
+    .card{ padding:36px 24px 30px; }
+    h1{ font-size:24px; }
+    .pw-box{ font-size:24px; padding:18px 12px; }
+    .brand{ flex-direction:column; align-items:flex-start; gap:10px; }
+    .eyebrow{ text-align:left; }
+  }
+</style>
+</head>
+<body>
+
+  <main class="card" role="main">
+    <div class="brand">
+      <div class="logo">IT<span class="dot">.</span>IA</div>
+      <div class="eyebrow"><span class="reddot"></span>Redefinição · Nível CEO</div>
+    </div>
+
+    <!-- Estado 1 — Carregando -->
+    <section class="state is-active" id="state-loading">
+      <div class="loading">
+        <div class="spinner" aria-hidden="true"></div>
+        <p>Confirmando o link e preparando sua senha provisória…</p>
+      </div>
+    </section>
+
+    <!-- Estado 2 — Senha provisória pronta -->
+    <section class="state" id="state-success">
+      <h1>Senha provisória pronta</h1>
+      <p>Olá, <span class="nome" id="nome">—</span>. Use esta senha pra entrar no painel do CEO:</p>
+      <div class="pw-wrap">
+        <div class="pw-label">Senha provisória</div>
+        <div class="pw-box" id="senha">——————————</div>
+      </div>
+      <button class="btn" id="copy-btn" type="button">Copiar senha</button>
+      <p class="small" style="margin-top:16px;">Anote agora — ela só aparece uma vez. Depois de entrar, o sistema vai pedir pra você escolher sua senha definitiva.</p>
+    </section>
+
+    <!-- Estado 3–6 + erro genérico -->
+    <section class="state" id="state-error">
+      <div class="err-mark" aria-hidden="true"></div>
+      <h1 id="err-title">Não foi possível continuar</h1>
+      <p id="err-msg">—</p>
+      <p class="small" id="err-hint">Volte à tela de entrada e clique em “Esqueci a senha” de novo.</p>
+    </section>
+
+    <div class="foot">ITIA.ORG.BR · SÃO PAULO, BRASIL</div>
+  </main>
+
+  <!-- Barra de pré-visualização (aparece só com ?preview=1) -->
+  <div id="preview-bar" aria-hidden="true"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ============================================================
+     CONFIGURAÇÃO
+     William: cole aqui o endereço do backend que confirma o link.
+     Ex.: "https://api.itia.org.br/confirmar-senha"
+     A página vai chamar:  ENDPOINT?token=<token da URL>
+     (ajuste o nome do parâmetro em TOKEN_PARAM se o seu link usar outro)
+     ============================================================ */
+  var ENDPOINT     = "https://wfqcoocfastgsfgegpcm.supabase.co/functions/v1/ceo-confirmar-redefinicao";
+  var TOKEN_PARAM  = "token";   // nome do parâmetro do token na URL do e-mail
+
+  /* ---- helpers de estado ---- */
+  function show(id){
+    var all = document.querySelectorAll(".state");
+    for (var i=0;i<all.length;i++) all[i].classList.remove("is-active");
+    document.getElementById(id).classList.add("is-active");
+  }
+
+  function showSuccess(nome, senha){
+    document.getElementById("nome").textContent  = nome || "";
+    document.getElementById("senha").textContent = senha || "";
+    show("state-success");
+  }
+
+  // Estados 3–6 + falha genérica. O backend manda { erro: "texto pronto" }.
+  // Não precisa saber qual dos 4 é — mas mapeamos por palavra-chave só pra
+  // colocar um título apropriado. Fallback = título genérico.
+  function showError(texto, tituloForcado, hintForcado){
+    var t = (texto || "Não foi possível gerar a senha.").trim();
+    var low = t.toLowerCase();
+    var titulo = "Não deu pra gerar a senha";
+    var hint   = "Volte à tela de entrada e clique em “Esqueci a senha” de novo.";
+
+    if (/não existe|nao existe|inválido|invalido/.test(low)) {
+      titulo = "Link inválido";
+    } else if (/já foi usado|ja foi usado|já usado|ja usado/.test(low)) {
+      titulo = "Link já usado";
+      hint   = "Volte à tela de entrada e clique em “Esqueci a senha” de novo pra gerar um link novo.";
+    } else if (/expir/.test(low)) {
+      titulo = "Link expirado";
+    } else if (/autoriza|exclusiv|ceo/.test(low)) {
+      titulo = "Não autorizado";
+      hint   = "";
+    }
+
+    document.getElementById("err-title").textContent = tituloForcado || titulo;
+    document.getElementById("err-msg").textContent   = t;
+    var hintEl = document.getElementById("err-hint");
+    var finalHint = (hintForcado !== undefined) ? hintForcado : hint;
+    if (finalHint) { hintEl.textContent = finalHint; hintEl.style.display = ""; }
+    else { hintEl.style.display = "none"; }
+    show("state-error");
+  }
+
+  /* ---- botão copiar ---- */
+  document.getElementById("copy-btn").addEventListener("click", function(){
+    var senha = document.getElementById("senha").textContent;
+    var btn = this;
+    function done(){
+      btn.textContent = "Copiado ✓";
+      btn.classList.add("copied");
+      setTimeout(function(){ btn.textContent = "Copiar senha"; btn.classList.remove("copied"); }, 2000);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(senha).then(done).catch(fallback);
+    } else { fallback(); }
+    function fallback(){
+      var r = document.createRange(); r.selectNode(document.getElementById("senha"));
+      var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+      try{ document.execCommand("copy"); done(); }catch(e){}
+      s.removeAllRanges();
+    }
+  });
+
+  /* ---- MODO PRÉ-VISUALIZAÇÃO (só pra revisar o design; não afeta produção) ----
+     Abra com ?preview=1 pra ver todos os estados. Em produção, sem ?preview,
+     a barra não aparece e a página segue direto pro fluxo real.            */
+  function buildPreviewBar(){
+    var bar = document.getElementById("preview-bar");
+    bar.classList.add("on");
+    var demos = [
+      ["1 · Carregando", function(){ show("state-loading"); }],
+      ["2 · Senha pronta", function(){ showSuccess("William Ramos", "Ab3dEfGh9k"); }],
+      ["3 · Inválido", function(){ showError("Esse link não existe ou já foi usado."); }],
+      ["4 · Já usado", function(){ showError("Esse link já foi usado antes."); }],
+      ["5 · Expirado", function(){ showError("Esse link expirou (valia 30 minutos)."); }],
+      ["6 · Não autoriz.", function(){ showError("Essa redefinição é exclusiva para o nível CEO."); }],
+      ["Erro conexão", function(){ showError("Não foi possível conectar ao servidor. Tente de novo.", "Falha de conexão"); }]
+    ];
+    demos.forEach(function(d){
+      var b = document.createElement("button");
+      b.textContent = d[0];
+      b.addEventListener("click", d[1]);
+      bar.appendChild(b);
+    });
+  }
+
+  /* ---- INÍCIO ---- */
+  var params = new URLSearchParams(window.location.search);
+
+  if (params.get("preview") === "1"){
+    buildPreviewBar();
+    show("state-loading");
+    return; // não chama o backend em modo preview
+  }
+
+  // Fluxo real: mostra "carregando" e confirma o link com o servidor.
+  show("state-loading");
+
+  var token = params.get(TOKEN_PARAM);
+
+  if (!ENDPOINT){
+    // Salvaguarda pra quando o arquivo ainda não tiver o endereço configurado.
+    showError("Configuração pendente: defina o endereço do backend (ENDPOINT) neste arquivo.", "Não configurado", "");
+    return;
+  }
+  if (!token){
+    showError("Esse link não existe ou já foi usado.");
+    return;
+  }
+
+  var url = ENDPOINT + (ENDPOINT.indexOf("?") === -1 ? "?" : "&") + TOKEN_PARAM + "=" + encodeURIComponent(token);
+
+  fetch(url, { method:"GET", headers:{ "Accept":"application/json" } })
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if (data && data.ok === true){
+        showSuccess(data.nome, data.senha);
+      } else if (data && data.erro){
+        showError(data.erro);
+      } else {
+        showError("Resposta inesperada do servidor.", "Não deu pra gerar a senha");
+      }
+    })
+    .catch(function(){
+      showError("Não foi possível conectar ao servidor. Verifique sua conexão e tente abrir o link de novo.", "Falha de conexão", "");
+    });
+
+})();
+</script>
+</body>
+</html>
