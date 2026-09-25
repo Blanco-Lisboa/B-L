@@ -31,21 +31,26 @@ public class PainelApplication {
                 ctx.getEnvironment().getProperty("server.port", "8474"));
         String url = "http://localhost:" + port + "/login.html?boot=" + System.currentTimeMillis();
 
-        // Pasta de cache/perfil NOVA a cada execucao (carimbada com o instante
-        // atual), pra garantir que o Chromium embutido NUNCA reaproveite nada
-        // de uma execucao anterior - resolveu tela mostrando HTML/JS antigos
-        // mesmo depois de matar o processo e recompilar (23/09/2026).
-        File pastaCacheNova = new File(System.getProperty("java.io.tmpdir"), "bl-jcef-cache-" + System.currentTimeMillis());
-        pastaCacheNova.mkdirs();
+        // Pasta de perfil ESTAVEL (sempre a mesma, entre execucoes) - guarda
+        // localStorage/cookies/sessao de verdade, pra "Salvar senha" do login
+        // funcionar (achado 25/09/2026: a pasta carimbada com timestamp abaixo
+        // criava um perfil novo a cada abertura, apagando o login lembrado
+        // toda vez). O problema de tela mostrando HTML/JS antigos (23/09/2026)
+        // continua resolvido pelos mesmos flags de desabilitar CACHE DE REDE
+        // (--disable-http-cache, --disk-cache-size=1 etc.) logo abaixo - isso
+        // e' um mecanismo DIFERENTE de localStorage/cookies, entao desligar um
+        // nao exige apagar o outro.
+        File pastaPerfil = new File(System.getProperty("java.io.tmpdir"), "bl-jcef-perfil");
+        pastaPerfil.mkdirs();
 
         CefAppBuilder builder = new CefAppBuilder();
         builder.setInstallDir(new File("target/jcef-bundle"));
         builder.getCefSettings().windowless_rendering_enabled = false;
-        builder.getCefSettings().cache_path = pastaCacheNova.getAbsolutePath();
-        builder.getCefSettings().persist_session_cookies = false;
+        builder.getCefSettings().cache_path = pastaPerfil.getAbsolutePath();
+        builder.getCefSettings().persist_session_cookies = true;
         builder.addJcefArgs("--disable-gpu", "--disable-gpu-compositing", "--disable-http-cache",
                 "--disk-cache-size=1", "--media-cache-size=1", "--disable-application-cache",
-                "--aggressive-cache-discard", "--user-data-dir=" + pastaCacheNova.getAbsolutePath());
+                "--aggressive-cache-discard", "--user-data-dir=" + pastaPerfil.getAbsolutePath());
 
         CefApp cefApp = builder.build();
         CefClient client = cefApp.createClient();
