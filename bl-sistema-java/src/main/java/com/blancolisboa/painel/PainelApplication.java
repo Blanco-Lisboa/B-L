@@ -25,6 +25,12 @@ public class PainelApplication {
 
     public static void main(String[] args) throws Exception {
         System.setProperty("java.awt.headless", "false");
+
+        /* Atualizacao da tela */
+        Atualizador.semearSeVazio();
+        Atualizador.buscarNovidades();
+        Atualizador.prepararLocaisDoFront();
+
         ConfigurableApplicationContext ctx = SpringApplication.run(PainelApplication.class, args);
 
         String port = ctx.getEnvironment().getProperty("local.server.port",
