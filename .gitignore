@@ -27,3 +27,7 @@ application-secret*.properties
 # SO
 .DS_Store
 Thumbs.db
+service role.txt
+API RESEND.COM.txt
+dist/
+worktrees/
