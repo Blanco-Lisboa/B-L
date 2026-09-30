@@ -2008,6 +2008,7 @@ function blToast(msg){var t=document.createElement('div');t.className='lc-toast'
 /* Sistema da YOU Contabilidade */
 var EQUIPE_EMPRESA_ID='98c4e681-b634-4ad9-af5d-cad11f0edb64';
 var eqAnon='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndmcWNvb2NmYXN0Z3NmZ2VncGNtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk0OTI2MTcsImV4cCI6MjEwNTA2ODYxN30.31bgQ0VWxDzck3G6BZJrQZbf8OAv4AOKQZPfjaroPmk';
+function leadUpAnexo(f){var caminho='leads/'+Date.now()+'_'+encodeURIComponent(f.name||('a-'+Date.now())).replace(/%/g,'_');return fetch('https://wfqcoocfastgsfgegpcm.supabase.co/storage/v1/object/vault-anexos/'+caminho,{method:'POST',headers:{apikey:eqAnon,Authorization:'Bearer '+(eqTok()||eqAnon),'Content-Type':(f.type||'application/octet-stream')},body:f}).then(function(r){if(!r.ok)return r.text().then(function(tx){throw new Error('upload '+r.status+' '+tx)});return 'https://wfqcoocfastgsfgegpcm.supabase.co/storage/v1/object/public/vault-anexos/'+caminho;});}
 function eqTok(){try{return JSON.parse(sessionStorage.getItem('bl_sessao')||'null').access_token;}catch(e){return null;}}
 function eqApi(p){return fetch('https://wfqcoocfastgsfgegpcm.supabase.co/rest/v1/'+p,{headers:{apikey:eqAnon,Authorization:'Bearer '+(eqTok()||eqAnon)}}).then(function(r){return r.json();});}
 var equipeState={tab:'dashboard',loading:false,loaded:false,pessoas:null,setores:null,pessoaAberta:null,fichaTab:'timeline',depOrdem:'tamanho',depDensidade:'confortavel',ponto:null,equipamentos:null,pontoPessoa:null,pontoPessoaId:null};
@@ -4488,7 +4489,7 @@ function rgWireAll(cont,regs,ctx){
    .catch(function(e){toast('Não deu pra gerar a tarefa: '+(e&&e.message||e));});
  });});
  cont.querySelectorAll('[data-rg-marco]').forEach(function(b){b.addEventListener('click',function(){var p=this.getAttribute('data-rg-marco').split('|');var r=find(p[0]);r.marcos=r.marcos||{};r.marcos[p[1]]=!r.marcos[p[1]];ctx.save();ctx.rerender();});});
- cont.querySelectorAll('[data-rg-anexo]').forEach(function(i){i.addEventListener('change',function(){var r=find(this.getAttribute('data-rg-anexo'));[].slice.call(this.files).forEach(function(f){r.anexos.push({nome:f.name,size:f.size,url:URL.createObjectURL(f)});});ctx.save();ctx.rerender();});});
+ cont.querySelectorAll('[data-rg-anexo]').forEach(function(i){i.addEventListener('change',function(){var r=find(this.getAttribute('data-rg-anexo'));[].slice.call(this.files).forEach(function(f){leadUpAnexo(f).then(function(u){r.anexos.push({nome:f.name,size:f.size,url:u});ctx.save();ctx.rerender();}).catch(function(e){toast('Nao deu pra anexar: '+(e&&e.message||e))});});});});
  cont.querySelectorAll('[data-rg-audio]').forEach(function(b){b.addEventListener('click',function(){gravarAudio(find(this.getAttribute('data-rg-audio')),ctx,this);});});
  cont.querySelectorAll('[data-rg-registrar]').forEach(function(b){b.addEventListener('click',function(){var r=find(this.getAttribute('data-rg-registrar'));r.salvo=true;r._edit=false;ctx.save();toast('Registro guardado na ficha. A janela continua aberta.');ctx.rerender();});});
  cont.querySelectorAll('[data-rg-editar]').forEach(function(b){b.addEventListener('click',function(){find(this.getAttribute('data-rg-editar'))._edit=true;ctx.rerender();});});
@@ -4505,7 +4506,7 @@ function gravarAudio(r,ctx,btn){
   btn.textContent='Parar · 0s';btn.style.color='#c8332b';
   var iv=setInterval(function(){btn.textContent='Parar · '+Math.round((Date.now()-t0)/1000)+'s';},500);
   mr.ondataavailable=function(e){chunks.push(e.data);};
-  mr.onstop=function(){clearInterval(iv);stream.getTracks().forEach(function(t){t.stop();});var blob=new Blob(chunks,{type:'audio/webm'});r.audios.push({dur:Math.round((Date.now()-t0)/1000),url:URL.createObjectURL(blob)});_rec=null;ctx.save();ctx.rerender();};
+  mr.onstop=function(){clearInterval(iv);stream.getTracks().forEach(function(t){t.stop();});var blob=new Blob(chunks,{type:'audio/webm'});var _dur=Math.round((Date.now()-t0)/1000);_rec=null;leadUpAnexo(new File([blob],'audio-'+Date.now()+'.webm',{type:'audio/webm'})).then(function(u){r.audios.push({dur:_dur,url:u});ctx.save();ctx.rerender();}).catch(function(e){toast('Nao deu: '+(e&&e.message||e))});};
   mr.start();
  }).catch(function(){toast('Não consegui acessar o microfone. Confira a permissão.');});
 }
@@ -5717,7 +5718,7 @@ var TEAMS_ICON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strok
    var reg=tipo==='audio'
     ?{canal_id:cid,autor_id:S.me?S.me.id:null,tipo:'audio',corpo:'Áudio:',meta:{dur:'0:42',transcricao:'(transcrição automática) áudio gravado no chat, pesquisável e com trecho marcável como decisão.'}}
     :{canal_id:cid,autor_id:S.me?S.me.id:null,tipo:'credencial',corpo:'',meta:{titulo:'Acesso do cofre',login:'usuário ••••'}};
-   return apiP('chat_mensagem',[reg]).then(function(){toast(tipo==='audio'?'Áudio gravado e transcrito.':'Credencial enviada como cartão do Cofre — a senha nunca aparece.');return carregarMsgs(cid).then(pintarMsgs);});
+   return apiP('chat_mensagem',[reg]).then(function(){toast(tipo==='audio'?'Recado de áudio ainda é demonstração — o áudio não foi gravado.':'Cartão de credencial ainda é demonstração — não veio do Cofre.');return carregarMsgs(cid).then(pintarMsgs);});
   });
  }
 
