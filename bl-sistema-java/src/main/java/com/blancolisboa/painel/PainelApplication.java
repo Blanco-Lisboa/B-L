@@ -26,7 +26,8 @@ public class PainelApplication {
     public static void main(String[] args) throws Exception {
         System.setProperty("java.awt.headless", "false");
 
-        /* Atualizacao da tela */
+        /* Atualizacao do programa e da tela */
+        Atualizador.trocarProgramaSePreciso();
         Atualizador.semearSeVazio();
         Atualizador.buscarNovidades();
         Atualizador.prepararLocaisDoFront();
