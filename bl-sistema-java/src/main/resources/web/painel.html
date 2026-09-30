@@ -6811,8 +6811,12 @@ function ecGASalvar(){var f=ecFind(empState.ga.ref);var u=f.u;if(!u)return;
  if(document.querySelector('[data-ec-mod]'))u.mods=EC_FIXOS.concat(mods);
  var perms=[].slice.call(document.querySelectorAll('[data-ec-perm]:checked')).map(function(c){return +c.getAttribute('data-ec-perm')});
  if(document.querySelector('[data-ec-perm]'))u.perm=perms;
- ecCloseModal();ecRender();if(typeof toast==='function')toast('Acesso de '+u.n+' salvo.');
- if(ecEhReal(f.i)){var campos={nome:u.n,nivel:u.nv};if(/@/.test(u.ident))campos.email=u.ident;else campos.cpf=u.ident;ecAtualizarUsuarioReal(u.id,campos);}
+ if(ecEhReal(f.i)){
+  eqApiEscrever('rpc/ceo_colaborador_acesso_salvar','POST',{p_usuario_id:u.id,p_nivel:u.nv,p_modulos:u.mods||[],p_permissoes:u.perm||[]})
+   .then(function(){var campos={};if(u.n)campos.nome=u.n;if(/@/.test(u.ident))campos.email=u.ident;else campos.cpf=u.ident;return ecAtualizarUsuarioReal(u.id,campos);})
+   .then(function(){ecCloseModal();ecRender();if(typeof toast==='function')toast('Acesso de '+u.n+' salvo.');})
+   .catch(function(e){if(typeof toast==='function')toast('Não deu pra salvar: '+(e&&e.message||e));});
+ } else { ecCloseModal();ecRender(); }
 }
 
 /* ===== Novo usuário (wizard) ===== */
@@ -6841,7 +6845,13 @@ function ecWizNext(dir){var w=empState.wiz;var steps=ecWizSteps(w);var cur=steps
 function ecWizCriar(){var w=empState.wiz;var i=w.d.empresa;var deps=ecDepsDe(i);var depNome=w.d.dep||(w.d.nivel==='diretor'||w.d.nivel==='ceo'?'Direção':(deps.find(function(d){return d.nome!=='Direção'})||{nome:'Direção'}).nome);
  var dep=deps.find(function(d){return d.nome===depNome});if(!dep){dep={nome:depNome,users:[]};deps.push(dep)}
  if(ecEhReal(i)){
-  ecCriarUsuarioReal(w.d.nome,w.d.nivel,dep.setorId).then(function(u){if(!u)return;dep.users.push({id:u.id,n:u.nome,nv:u.nivel,ident:w.d.ident||u.email||u.cpf||'—',mods:w.d.mods,perm:[],ativo:true,real:true});if(w.d.ident)ecAtualizarUsuarioReal(u.id,/@/.test(w.d.ident)?{email:w.d.ident}:{cpf:w.d.ident});ecCloseModal();empState.emp=i;ecRender();toast&&toast('Usuário '+w.d.nome+' criado em '+CLI_C[i][0]+' · '+depNome+'.');});
+  var tkw=(function(){try{return JSON.parse(sessionStorage.getItem('bl_sessao')||'null').access_token;}catch(e){return null;}})();
+  fetch('https://wfqcoocfastgsfgegpcm.supabase.co/functions/v1/ceo-criar-colaborador',{method:'POST',headers:{'Content-Type':'application/json',apikey:ANONC,Authorization:'Bearer '+(tkw||ANONC)},body:JSON.stringify({access_token:tkw,nome:w.d.nome,nivel:w.d.nivel,ident:w.d.ident,senha:w.d.senha,setor_id:dep.setorId||null,empresa_id:EQUIPE_EMPRESA_ID,modulos:w.d.mods||null,permissoes:w.d.perm||null})})
+   .then(function(r){return r.json();}).then(function(j){
+    if(!j||!j.ok){toast&&toast('Não deu: '+((j&&j.erro)||'erro ao criar colaborador'));return;}
+    dep.users.push({id:j.id,n:w.d.nome,nv:w.d.nivel,ident:w.d.ident||'—',mods:w.d.mods,perm:[],ativo:true,real:true});
+    ecCloseModal();empState.emp=i;ecRender();toast&&toast('Colaborador '+w.d.nome+' criado com login em '+CLI_C[i][0]+' · '+depNome+'.');
+   }).catch(function(e){toast&&toast('Falha ao criar colaborador: '+(e&&e.message||e));});
   return;
  }
  var u=ecUser(w.d.nome,w.d.nivel,w.d.mods);u.ident=w.d.ident||u.ident;dep.users.push(u);
