@@ -3500,8 +3500,8 @@ function fin2cCarregar(id,campo,tabela,query){
   .then(function(d){st[campo]=Array.isArray(d)?d:[];st[campo+'Loading']=false;renderFinmod();})
   .catch(function(){st[campo]=st[campo]||[];st[campo+'Loading']=false;renderFinmod();});
 }
-function fin2Patch(tabela,filtro,body){return fetch(FIN2_URL+'/rest/v1/'+tabela+'?'+filtro,{method:'PATCH',headers:Object.assign(fin2Headers(true),{Prefer:'return=minimal'}),body:JSON.stringify(body)});}
-function fin2Post(tabela,body){return fetch(FIN2_URL+'/rest/v1/'+tabela,{method:'POST',headers:Object.assign(fin2Headers(true),{Prefer:'return=representation'}),body:JSON.stringify(body)}).then(function(r){return r.json().catch(function(){return null;});});}
+function fin2Patch(tabela,filtro,body){return fetch(FIN2_URL+'/rest/v1/'+tabela+'?'+filtro,{method:'PATCH',headers:Object.assign(fin2Headers(true),{Prefer:'return=minimal'}),body:JSON.stringify(body)}).then(function(r){if(!r.ok)return r.text().then(function(t){throw new Error('banco '+r.status+' '+(t||'').slice(0,180))});return r;});}
+function fin2Post(tabela,body){return fetch(FIN2_URL+'/rest/v1/'+tabela,{method:'POST',headers:Object.assign(fin2Headers(true),{Prefer:'return=representation'}),body:JSON.stringify(body)}).then(function(r){if(!r.ok)return r.text().then(function(t){throw new Error('banco '+r.status+' '+(t||'').slice(0,180))});return r.json().catch(function(){return null;});});}
 function fin2LigarTituloExec(mov,tituloId,darBaixa){
  var p=fin2Patch('fin2_conciliacao_movimento','id=eq.'+mov.id,{status:'casado',titulo_id:tituloId});
  if(!darBaixa)return p;
@@ -4246,6 +4246,7 @@ function eqApiEscrever(p,metodo,body){
  var headers={apikey:eqAnon,Authorization:'Bearer '+(eqTok()||eqAnon)};
  if(body!==undefined){headers['Content-Type']='application/json';headers['Prefer']='return=representation';}
  return fetch('https://wfqcoocfastgsfgegpcm.supabase.co/rest/v1/'+p,{method:metodo,headers:headers,body:body!==undefined?JSON.stringify(body):undefined}).then(function(r){
+  if(!r.ok)return r.text().then(function(t){throw new Error('banco '+r.status+' '+(t||'').slice(0,180))});
   if(r.status===204)return [];
   return r.json().catch(function(){return [];});
  });
@@ -5310,8 +5311,8 @@ var TEAMS_ICON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strok
  function meEmail(){try{var s=JSON.parse(sessionStorage.getItem('bl_sessao')||'null');return (s&&(s.user&&s.user.email||s.email))||null;}catch(e){return null;}}
  function hdrs(extra){var h={apikey:ANON,Authorization:'Bearer '+(tok()||ANON),'Content-Type':'application/json'};if(extra)for(var k in extra)h[k]=extra[k];return h;}
  function apiG(p){return fetch(SUP+'/rest/v1/'+p,{headers:hdrs()}).then(function(r){return r.json();});}
- function apiP(p,body,prefer){return fetch(SUP+'/rest/v1/'+p,{method:'POST',headers:hdrs({Prefer:prefer||'return=representation'}),body:JSON.stringify(body)}).then(function(r){return r.json();});}
- function apiPatch(p,body){return fetch(SUP+'/rest/v1/'+p,{method:'PATCH',headers:hdrs({Prefer:'return=representation'}),body:JSON.stringify(body)}).then(function(r){return r.json();});}
+ function apiP(p,body,prefer){return fetch(SUP+'/rest/v1/'+p,{method:'POST',headers:hdrs({Prefer:prefer||'return=representation'}),body:JSON.stringify(body)}).then(function(r){if(!r.ok)return r.text().then(function(t){throw new Error('banco '+r.status+' '+(t||'').slice(0,180))});if(r.status===204)return [];return r.json();});}
+ function apiPatch(p,body){return fetch(SUP+'/rest/v1/'+p,{method:'PATCH',headers:hdrs({Prefer:'return=representation'}),body:JSON.stringify(body)}).then(function(r){if(!r.ok)return r.text().then(function(t){throw new Error('banco '+r.status+' '+(t||'').slice(0,180))});if(r.status===204)return [];return r.json();});}
 
  function esc(x){return String(x==null?'':x).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
  function ini(n){n=(n||'').trim();var p=n.split(/\s+/);var r=p.length>1?(p[0].charAt(0)+p[p.length-1].charAt(0)):(n.length>=2?n.substring(0,2):n);return r.toUpperCase();}
@@ -6006,8 +6007,8 @@ document.addEventListener('change',function(ev){var t=ev.target;if(t&&t.hasAttri
  var ANONC='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndmcWNvb2NmYXN0Z3NmZ2VncGNtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk0OTI2MTcsImV4cCI6MjEwNTA2ODYxN30.31bgQ0VWxDzck3G6BZJrQZbf8OAv4AOKQZPfjaroPmk';
  function tok(){try{return JSON.parse(sessionStorage.getItem('bl_sessao')||'null').access_token;}catch(e){return null;}}
  function apiC(p){return fetch(SUP+'/rest/v1/'+p,{headers:{apikey:ANONC,Authorization:'Bearer '+(tok()||ANONC)}}).then(function(r){return r.json();});}
- function apiPost(p,body,prefer){return fetch(SUP+'/rest/v1/'+p,{method:'POST',headers:{apikey:ANONC,Authorization:'Bearer '+(tok()||ANONC),'Content-Type':'application/json',Prefer:prefer||'return=representation'},body:JSON.stringify(body)}).then(function(r){return r.json().catch(function(){return null;});});}
- function apiPatch(p,body){return fetch(SUP+'/rest/v1/'+p,{method:'PATCH',headers:{apikey:ANONC,Authorization:'Bearer '+(tok()||ANONC),'Content-Type':'application/json',Prefer:'return=representation'},body:JSON.stringify(body)}).then(function(r){return r.json().catch(function(){return null;});});}
+ function apiPost(p,body,prefer){return fetch(SUP+'/rest/v1/'+p,{method:'POST',headers:{apikey:ANONC,Authorization:'Bearer '+(tok()||ANONC),'Content-Type':'application/json',Prefer:prefer||'return=representation'},body:JSON.stringify(body)}).then(function(r){if(!r.ok)return r.text().then(function(t){throw new Error('banco '+r.status+' '+(t||'').slice(0,180))});return r.json().catch(function(){return null;});});}
+ function apiPatch(p,body){return fetch(SUP+'/rest/v1/'+p,{method:'PATCH',headers:{apikey:ANONC,Authorization:'Bearer '+(tok()||ANONC),'Content-Type':'application/json',Prefer:'return=representation'},body:JSON.stringify(body)}).then(function(r){if(!r.ok)return r.text().then(function(t){throw new Error('banco '+r.status+' '+(t||'').slice(0,180))});return r.json().catch(function(){return null;});});}
  function toastNv(m){if(window.toast)window.toast(m);else if(window.blToast)window.blToast(m);}
  function fmtCnpj(d){d=String(d||'').replace(/\D/g,'');return d.length===14?d.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/,'$1.$2.$3/$4-$5'):d;}
  function esc2(x){return String(x==null?'':x).replace(/[&<>"]/g,function(ch){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch];});}
