@@ -5642,7 +5642,7 @@ var TEAMS_ICON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strok
   });
   box.innerHTML=h;box.scrollTop=box.scrollHeight;
   Array.prototype.forEach.call(box.querySelectorAll('.cliente-chip'),function(c){c.onclick=function(){verCliente(c.getAttribute('data-c'));};});
-  Array.prototype.forEach.call(box.querySelectorAll('.cred-copy'),function(c){c.onclick=function(){toast('Senha copiada. Ficou registrado quem copiou e quando (trilha do Cofre).');};});
+  Array.prototype.forEach.call(box.querySelectorAll('.cred-copy'),function(c){c.onclick=function(){var card=c.closest('.cred-card');var v=card&&card.querySelector('.cred-login')?card.querySelector('.cred-login').textContent:'';try{if(navigator.clipboard)navigator.clipboard.writeText((v||'').trim());}catch(e){}toast('Copiado.');};});
  }
  function autorInfo(id){var p=S.pessoas.filter(function(x){return x.id===id;})[0];return p||{nome:'—',nivel:'',foto_url:null};}
  function msgNode(m,mine,compact){
