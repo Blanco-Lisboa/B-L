@@ -63,6 +63,21 @@
     var SUPA_URL = 'https://wfqcoocfastgsfgegpcm.supabase.co';
     var ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndmcWNvb2NmYXN0Z3NmZ2VncGNtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk0OTI2MTcsImV4cCI6MjEwNTA2ODYxN30.31bgQ0VWxDzck3G6BZJrQZbf8OAv4AOKQZPfjaroPmk';
     var PEDIR_REDEF_URL = 'https://wfqcoocfastgsfgegpcm.supabase.co/functions/v1/ceo-pedir-redefinicao';
+    var LEG_URL = 'https://uvmcfnghdsmpzhijqlos.supabase.co';
+    var LEG_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV2bWNmbmdoZHNtcHpoaWpxbG9zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcwNTY2MzYsImV4cCI6MjA5MjYzMjYzNn0.qHP-UeaM5rAycd5v9919jZqZ-vBszdb1Eqh3BmNQiAI';
+    function espelhoLegadoSenha(email, senha) {
+      return fetch(LEG_URL + '/auth/v1/token?grant_type=password', { method: 'POST', headers: { 'Content-Type': 'application/json', apikey: LEG_ANON }, body: JSON.stringify({ email: email, password: senha }) })
+        .then(function (r) { return r.json(); })
+        .then(function (j) { if (j && j.access_token) { try { sessionStorage.setItem('bl_sessao_leg', JSON.stringify(j)); } catch (e) {} return j.refresh_token || null; } return null; })
+        .catch(function () { return null; });
+    }
+    function espelhoLegadoRefresh(rt) {
+      if (!rt) return;
+      fetch(LEG_URL + '/auth/v1/token?grant_type=refresh_token', { method: 'POST', headers: { 'Content-Type': 'application/json', apikey: LEG_ANON }, body: JSON.stringify({ refresh_token: rt }) })
+        .then(function (r) { return r.json(); })
+        .then(function (j) { if (j && j.access_token) { try { sessionStorage.setItem('bl_sessao_leg', JSON.stringify(j)); } catch (e) {} } })
+        .catch(function () {});
+    }
     function irParaDestino(email, token) {
       fetch(SUPA_URL + '/rest/v1/usuarios_internos?select=senha_provisoria&email=eq.' + encodeURIComponent(email) + '&limit=1', { headers: { apikey: ANON, Authorization: 'Bearer ' + token } })
         .then(function (r) { return r.json(); })
@@ -84,8 +99,10 @@
       .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
       .then(function (res) {
         if (res.ok && res.j && res.j.access_token) {
-          try { localStorage.setItem('bl_login', JSON.stringify({ email: elEmail.value.trim(), refresh_token: res.j.refresh_token })); } catch (e) {}
+          var rtLegPrev = null; try { rtLegPrev = (JSON.parse(localStorage.getItem('bl_login') || 'null') || {}).rt_leg || null; } catch (e) {}
+          try { localStorage.setItem('bl_login', JSON.stringify({ email: elEmail.value.trim(), refresh_token: res.j.refresh_token, rt_leg: rtLegPrev })); } catch (e) {}
           try { sessionStorage.setItem('bl_sessao', JSON.stringify(res.j)); } catch (e) {}
+          espelhoLegadoRefresh(rtLegPrev);
           irParaDestino(elEmail.value.trim(), res.j.access_token);
         } else { try { localStorage.removeItem('bl_login'); } catch (e) {} go.disabled = false; go.textContent = 'Entrar'; }
       })
@@ -111,6 +128,7 @@
             else localStorage.removeItem('bl_login');
           } catch (e) {}
           try { sessionStorage.setItem('bl_sessao', JSON.stringify(res.j)); } catch (e) {}
+          espelhoLegadoSenha(email, senha).then(function (rtLeg) { if (rtLeg) { try { var bl = JSON.parse(localStorage.getItem('bl_login') || 'null'); if (bl) { bl.rt_leg = rtLeg; localStorage.setItem('bl_login', JSON.stringify(bl)); } } catch (e) {} } });
           irParaDestino(email, res.j.access_token);
         } else {
           err.textContent = (res.j && (res.j.error_description || res.j.msg || res.j.error)) || 'E-mail ou senha inválidos.';
