@@ -6076,7 +6076,7 @@ document.addEventListener('change',function(ev){var t=ev.target;if(t&&t.hasAttri
  var bP=document.getElementById('btnPerfil');if(bP)bP.addEventListener('click',function(){selectModule('configuracoes');});
  var su=document.getElementById('sideUser');if(su)su.addEventListener('click',function(){selectModule('configuracoes');});
  function abrirConfig(){document.querySelectorAll('[data-module]').forEach(function(b){b.classList.toggle('nav-item-active',b.getAttribute('data-module')==='configuracoes');});var hdr=document.querySelector('header.top');if(hdr)hdr.hidden=true;var bd=document.getElementById('board');if(bd)bd.hidden=true;var ft=document.getElementById('dashfoot');if(ft)ft.hidden=true;var mb=document.getElementById('modblank');if(!mb)return;mb.hidden=false;mb.style.padding='';mb.style.width='';mb.style.alignSelf='';
-  if(window.__ucfAbrir)window.__ucfAbrir();
+  mb.innerHTML='';var _n=0;(function _go(){if(window.__ucfAbrir){window.__ucfAbrir();return;}if(_n++<25)setTimeout(_go,100);})();
  }
  var _pm=selectModule;selectModule=function(m){if(m==='configuracoes'){abrirConfig();return;}return _pm(m);};
 }());
@@ -10414,6 +10414,7 @@ document.addEventListener('change',function(ev){var t=ev.target;if(!document.get
   }
 
   function abrir(){ var mb=document.getElementById('modblank'); if(mb){ mb.style.padding='0'; mb.style.width='100%'; mb.style.alignSelf='stretch'; mb.innerHTML='<div class="ucf-page"><div class="ucf-load">Carregando usuários…</div></div>'; } garantirLegado().then(carregar).then(render).catch(function(e){ var m=document.getElementById('modblank'); if(m) m.innerHTML='<div class="ucf-page"><div class="ucf-load">Não deu pra carregar: '+esc(e.message)+'</div></div>'; }); }
+  window.__ucfAbrir=abrir;
 
   /* liga no modulo Configuracoes existente (sem aba nova) */
   function ligar(){
