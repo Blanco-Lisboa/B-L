@@ -7720,7 +7720,7 @@ function monCardHtml(u){
   +'<div class="mon-card-top">'+monAvatarHtml(u.nome,u.foto_url,u.usuario_id,44,est.cor,a.semAgente)
   +'<div style="flex:1;min-width:0"><div class="mon-card-nome">'+esc(u.nome)+'</div><div class="mon-card-sub">'+esc(u.nivel)+' · '+esc((u.setores||[]).join(', '))+'</div><span class="mon-etq" style="color:'+est.cor+';background:'+est.fundo+'">'+est.rotulo+'</span></div>'
   +'<div class="mon-menu-w"><button type="button" class="mon-menu-btn" data-mon-menu="'+u.usuario_id+'">⋮</button>'
-  +(monState.modal&&monState.modal.tipo==='menu'&&monState.modal.uid===u.usuario_id?('<div class="mon-menu"><button type="button" data-mon-gravacoes="'+u.usuario_id+'">Gravações da tela</button><button type="button" data-mon-politica="'+u.usuario_id+'">Política de acesso</button><button type="button" data-mon-histuser="'+u.usuario_id+'">Histórico deste usuário</button><button type="button" data-mon-detalhesmaq="'+u.usuario_id+'">Detalhes da máquina</button></div>'):'')
+  +(monState.modal&&monState.modal.tipo==='menu'&&monState.modal.uid===u.usuario_id?('<div class="mon-menu"><button type="button" data-mon-gravacoes="'+u.usuario_id+'">Gravações da tela</button><button type="button" data-mon-politica="'+u.usuario_id+'">Política de acesso</button><button type="button" data-mon-comandos="'+u.usuario_id+'">Comandos rápidos</button><button type="button" data-mon-histuser="'+u.usuario_id+'">Histórico deste usuário</button><button type="button" data-mon-detalhesmaq="'+u.usuario_id+'">Detalhes da máquina</button></div>'):'')
   +'</div></div>'
   +'<div class="mon-thumb">'+(a.semAgente||a.desligado?'':'')+'<svg width="26" height="26" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="1.5" y="2.5" width="13" height="9" rx="1.5"/><line x1="6" y1="14" x2="10" y2="14"/><line x1="8" y1="11.5" x2="8" y2="14"/></svg><span style="font-family:JetBrains Mono,monospace;font-size:9.5px">'+(a.semAgente?'sem agente':a.desligado?'máquina desligada':'sem miniatura')+'</span></div>'
   +'<div class="mon-info"><span class="maq">'+esc(monTextoMaquina(u))+'</span><span>'+esc(monTextoVisto(u))+'</span></div>'
@@ -7783,6 +7783,51 @@ function monHistoricoHtml(){
   +(monState.filtroHistUsuario?'<button type="button" class="mon-chip on" style="border-color:var(--mn-ouro);background:#fbf4e3;color:#6b4e12" data-mon-limparhistusuario>filtrando por pessoa ✕</button>':'')+'</div>'
   +'<div style="display:flex;gap:8px;align-items:center"><button type="button" class="mon-chip'+(monState.soAtivas?' on':'')+'" style="'+(monState.soAtivas?'border-color:var(--mn-navy);background:var(--mn-navy);color:var(--mn-ouroc)':'')+'" data-mon-soativas>Em andamento</button><button type="button" class="mon-btn-acao s" style="flex:0 0 auto;padding:0 12px" data-mon-exportarcsv>Exportar CSV</button></div></div>'
   +cab+corpo+'</section>';
+}
+function monCmdCarregar(){
+ return fetch(MON_URL+'/rest/v1/monitoramento_comando_rapido?select=*&order=fixado.desc,ordem.asc,criado_em.asc',{headers:monHeaders()}).then(function(r){return r.json();}).then(function(j){monState.comandos=Array.isArray(j)?j:[];}).catch(function(){monState.comandos=[];});
+}
+function monCmdRodar(dispId,comando,shell){
+ if(!dispId){monToast('Máquina sem agente.');return;}
+ var marcador=shell==='cmd'?' & echo BL-FIM':' ; echo BL-FIM';
+ if(monState.modal){monState.modal.rodando=true;monState.modal.saida='';}renderMon();
+ fetch(MON_URL+'/functions/v1/monitoramento-comando',{method:'POST',headers:monHeaders(),body:JSON.stringify({ceo_id:monMeuId(),dispositivo_ids:[dispId],comando:comando+marcador,tipo:(shell==='cmd'?1:2),esperaMs:60000})})
+  .then(function(r){return r.text().then(function(t){var j;try{j=JSON.parse(t);}catch(e){j={error:t};}if(!r.ok||j.error)throw new Error(j.error||('erro '+r.status));return j;});})
+  .then(function(j){var out=j.resultados&&j.resultados[dispId];out=(out==null?'(sem retorno)':String(out)).replace(/BL-FIM\s*$/,'').trim();if(j.parcial)out+='\n\n(parcial — a máquina demorou a responder)';if(monState.modal){monState.modal.rodando=false;monState.modal.saida=out||'(vazio)';}renderMon();})
+  .catch(function(e){if(monState.modal){monState.modal.rodando=false;monState.modal.saida='Erro: '+(e&&e.message||e);}renderMon();});
+}
+function monCmdSalvar(nome,comando,shell){
+ if(!nome||!comando){monToast('Preencha nome e comando.');return;}
+ fetch(MON_URL+'/rest/v1/monitoramento_comando_rapido',{method:'POST',headers:monHeaders({Prefer:'return=minimal'}),body:JSON.stringify({nome:nome,comando:comando,shell:shell||'powershell',criado_por:monMeuId()})})
+  .then(function(r){if(!r.ok)return r.text().then(function(t){throw new Error(t.slice(0,160));});monToast('Comando salvo.');return monCmdCarregar();}).then(function(){renderMon();}).catch(function(e){monToast('Não salvou: '+(e&&e.message||e));});
+}
+function monCmdExcluir(id){
+ fetch(MON_URL+'/rest/v1/monitoramento_comando_rapido?id=eq.'+id,{method:'DELETE',headers:monHeaders({Prefer:'return=minimal'})}).then(function(r){if(!r.ok)return r.text().then(function(t){throw new Error(t.slice(0,120));});return monCmdCarregar();}).then(function(){renderMon();}).catch(function(e){monToast('Não excluiu: '+(e&&e.message||e));});
+}
+function monComandosModalHtml(){
+ var m=monState.modal,u=m.usuario,disp=u&&u.dispositivo;
+ var inSt='width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:7px;font:inherit;color:var(--ink);box-sizing:border-box;background:var(--panel)';
+ var lista=(monState.comandos||[]).map(function(c){
+  return '<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--line);border-radius:7px;margin-bottom:6px">'
+   +'<div style="flex:1;min-width:0"><div style="font-weight:600;font-size:12.5px">'+esc(c.nome)+'</div><div style="font-family:JetBrains Mono,monospace;font-size:10.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(c.comando)+'</div></div>'
+   +'<span style="font-size:9.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">'+(c.shell==='cmd'?'CMD':'PowerShell')+'</span>'
+   +'<button type="button" class="mon-btn-acao p" style="height:28px;flex:0 0 auto;padding:0 10px" data-mon-cmd-run="'+c.id+'"'+(disp?'':' disabled')+'>Rodar</button>'
+   +'<button type="button" class="mon-btn-acao" style="height:28px;flex:0 0 auto;padding:0 8px" data-mon-cmd-del="'+c.id+'" title="Excluir">✕</button></div>';
+ }).join('')||'<div style="color:var(--muted);font-size:12px;padding:8px 0">Nenhum comando salvo ainda.</div>';
+ var saida=m.saida?('<div style="margin-top:12px"><div style="font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:700;margin-bottom:4px">Resultado</div><pre style="background:#0b1220;color:#d7e0ee;font-family:JetBrains Mono,monospace;font-size:11.5px;padding:12px;border-radius:8px;max-height:260px;overflow:auto;white-space:pre-wrap;margin:0">'+esc(m.saida)+'</pre></div>'):'';
+ var rod=m.rodando?'<span style="font-size:11.5px;color:var(--muted)">rodando…</span>':'';
+ return '<div class="mon-ov" data-mon-fecharmodal><div class="mon-modal" onclick="event.stopPropagation()" style="max-width:680px;width:92vw">'
+  +'<div class="mon-modal-hd"><div><div class="mon-modal-kick">Comandos rápidos</div><div class="mon-modal-tit">'+esc(u.nome)+(disp?(' · '+esc(disp.nome_maquina)):'')+'</div></div><button type="button" data-mon-fecharmodal aria-label="Fechar" style="margin-left:auto;background:none;border:0;font-size:20px;color:var(--muted);cursor:pointer">×</button></div>'
+  +'<div style="padding:14px 20px">'
+  +'<div style="font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:700;margin-bottom:8px">Salvos</div>'+lista
+  +'<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--line)">'
+  +'<div style="font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:700;margin-bottom:8px">Rodar / salvar</div>'
+  +'<input id="monCmdNome" placeholder="Nome (ex.: Reinstalar app YOU)" style="'+inSt+';margin-bottom:8px">'
+  +'<textarea id="monCmdTexto" rows="3" placeholder="comando…" style="'+inSt+';resize:vertical;font-family:JetBrains Mono,monospace;font-size:12px"></textarea>'
+  +'<div style="display:flex;align-items:center;gap:8px;margin-top:8px"><select id="monCmdShell" style="padding:7px 10px;border:1px solid var(--line);border-radius:7px;background:var(--panel);color:var(--ink);font:inherit"><option value="powershell">PowerShell</option><option value="cmd">CMD</option></select>'
+  +'<button type="button" class="mon-btn-acao p" style="height:32px;padding:0 14px" data-mon-cmd-runadhoc'+(disp?'':' disabled')+'>Rodar agora</button>'
+  +'<button type="button" class="mon-btn-acao" style="height:32px;padding:0 12px" data-mon-cmd-save>Salvar na lista</button>'+rod+'</div>'
+  +saida+'</div></div></div></div>';
 }
 function monPoliticaModalHtml(){
  var m=monState.modal,u=m.usuario,draft=m.draft;
@@ -7885,6 +7930,7 @@ function monModule(){
  }
  html+='</div>';
  if(monState.modal&&monState.modal.tipo==='politica')html+=monPoliticaModalHtml();
+ if(monState.modal&&monState.modal.tipo==='comandos')html+=monComandosModalHtml();
  html+=monSessaoOverlayHtml();
  if(monState.toast)html+='<div class="mon-toast">'+esc(monState.toast)+'</div>';
  return html;
@@ -7954,6 +8000,11 @@ document.addEventListener('click',function(ev){
  if((c=t.closest&&t.closest('[data-mon-terminal]'))){monConectar(c.getAttribute('data-mon-terminal'),'terminal',c.getAttribute('data-mon-disp'));return;}
  if((c=t.closest&&t.closest('[data-mon-menu]'))){var uid=c.getAttribute('data-mon-menu');monState.modal=(monState.modal&&monState.modal.tipo==='menu'&&monState.modal.uid===uid)?null:{tipo:'menu',uid:uid};renderMon();return;}
  if((c=t.closest&&t.closest('[data-mon-politica]'))){var uid2=c.getAttribute('data-mon-politica');var u2=monState.equipe.filter(function(x){return x.usuario_id===uid2;})[0];if(u2)monState.modal={tipo:'politica',usuario:u2,draft:Object.assign({},u2.politica)};renderMon();return;}
+ if((c=t.closest&&t.closest('[data-mon-comandos]'))){var uidc=c.getAttribute('data-mon-comandos');var uc=monState.equipe.filter(function(x){return x.usuario_id===uidc;})[0];if(uc){monState.modal={tipo:'comandos',usuario:uc,saida:'',rodando:false};renderMon();monCmdCarregar().then(function(){if(monState.modal&&monState.modal.tipo==='comandos')renderMon();});}return;}
+ if((c=t.closest&&t.closest('[data-mon-cmd-run]'))){var cid=c.getAttribute('data-mon-cmd-run');var cmd=(monState.comandos||[]).filter(function(x){return x.id===cid;})[0];var um=monState.modal&&monState.modal.usuario;if(cmd&&um&&um.dispositivo)monCmdRodar(um.dispositivo.id,cmd.comando,cmd.shell);return;}
+ if((c=t.closest&&t.closest('[data-mon-cmd-del]'))){monCmdExcluir(c.getAttribute('data-mon-cmd-del'));return;}
+ if(t.closest&&t.closest('[data-mon-cmd-runadhoc]')){var ua=monState.modal&&monState.modal.usuario,tx=document.getElementById('monCmdTexto'),sh=document.getElementById('monCmdShell');if(ua&&ua.dispositivo&&tx&&tx.value.trim())monCmdRodar(ua.dispositivo.id,tx.value,sh?sh.value:'powershell');else monToast('Escreva o comando.');return;}
+ if(t.closest&&t.closest('[data-mon-cmd-save]')){var nm=document.getElementById('monCmdNome'),tx2=document.getElementById('monCmdTexto'),sh2=document.getElementById('monCmdShell');monCmdSalvar(nm&&nm.value.trim(),tx2&&tx2.value.trim(),sh2?sh2.value:'powershell');return;}
  if((c=t.closest&&t.closest('[data-mon-histuser]'))){monState.filtroHistUsuario=c.getAttribute('data-mon-histuser');monState.soAtivas=false;monState.modal=null;renderMon();setTimeout(function(){var el=document.getElementById('monHistorico');if(el)el.scrollIntoView({behavior:'smooth'});},50);return;}
  if((c=t.closest&&t.closest('[data-mon-detalhesmaq]'))){var uid3=c.getAttribute('data-mon-detalhesmaq');var u3=monState.equipe.filter(function(x){return x.usuario_id===uid3;})[0];monState.modal=null;renderMon();monToast(u3&&u3.dispositivo?(u3.dispositivo.nome_maquina+' · '+(u3.dispositivo.sistema||'')+' · agente '+(u3.dispositivo.versao_agente||'—')):'Sem máquina vinculada');return;}
  if(t.closest&&t.closest('[data-mon-comoinstalar]')){monToast('Peça para instalar o app B&L — o agente vem dentro do instalador.');return;}
