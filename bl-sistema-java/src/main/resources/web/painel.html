@@ -4876,7 +4876,7 @@ function selectModule(m){if(window.BLDash&&m!=="dashboard")BLDash.desmontar();mo
  var mod=MODS[m]||{nome:m,icon:''};
  mb.innerHTML='<div class="modblank-in"><div class="mb-ic">'+mod.icon+'</div><div class="mb-t">'+mod.nome+'</div><div class="mb-s">Em breve</div></div>';}
 modBtns.forEach(function(b){b.addEventListener("click",function(){selectModule(this.getAttribute("data-module"));});});
-(function(){var app=document.querySelector(".app"),tg=document.querySelector(".side-toggle");if(!app||!tg)return;try{if(localStorage.getItem("bl_side")==="1")app.classList.add("collapsed");}catch(e){}tg.addEventListener("click",function(){app.classList.toggle("collapsed");try{localStorage.setItem("bl_side",app.classList.contains("collapsed")?"1":"0");}catch(e){}});})();
+(function(){var app=document.querySelector(".app"),tg=document.querySelector(".side-toggle");if(!app||!tg)return;try{if(localStorage.getItem("bl_side")==="1")app.classList.add("collapsed");}catch(e){}tg.addEventListener("click",function(){app.classList.toggle("collapsed");try{localStorage.setItem("bl_side",app.classList.contains("collapsed")?"1":"0");}catch(e){}[0,180,340].forEach(function(ms){setTimeout(function(){try{window.dispatchEvent(new Event('resize'));}catch(e){}},ms);});});})();
 
 selectTab("dashboard");
 prefsBoot();
