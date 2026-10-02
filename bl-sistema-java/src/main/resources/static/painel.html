@@ -1087,7 +1087,6 @@
   <div class="side-spacer"></div>
   <div class="side-user" id="sideUser" style="cursor:pointer" title="Meu perfil"><span class="side-av" id="suAv">BL</span><div><div class="su-nm" id="suNome">—</div><div class="su-rl" id="suEmail">—</div></div></div>
   <div id="sideActs" style="display:flex;flex-direction:column;gap:2px;padding:6px 0 2px">
-    <button class="nav-item" type="button" id="btnPerfil" style="font-size:13px"><span class="ni-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.2"/><path d="M5 20a7 7 0 0 1 14 0"/></svg></span><span>Meu perfil</span></button>
     <button class="nav-item" type="button" id="btnSair" style="font-size:13px"><span class="ni-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 4h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-3"/><path d="M10 17l-5-5 5-5"/><path d="M5 12h11"/></svg></span><span>Sair</span></button>
   </div>
 </aside>
@@ -6077,9 +6076,7 @@ document.addEventListener('change',function(ev){var t=ev.target;if(t&&t.hasAttri
  var bP=document.getElementById('btnPerfil');if(bP)bP.addEventListener('click',function(){selectModule('configuracoes');});
  var su=document.getElementById('sideUser');if(su)su.addEventListener('click',function(){selectModule('configuracoes');});
  function abrirConfig(){document.querySelectorAll('[data-module]').forEach(function(b){b.classList.toggle('nav-item-active',b.getAttribute('data-module')==='configuracoes');});var hdr=document.querySelector('header.top');if(hdr)hdr.hidden=true;var bd=document.getElementById('board');if(bd)bd.hidden=true;var ft=document.getElementById('dashfoot');if(ft)ft.hidden=true;var mb=document.getElementById('modblank');if(!mb)return;mb.hidden=false;mb.style.padding='';mb.style.width='';mb.style.alignSelf='';
-  var ss=sess();var em=(ss&&ss.user&&ss.user.email)||'—';var nmEl=document.getElementById('suNome');var nm=nmEl?nmEl.textContent:'';
-  mb.innerHTML='<div style="padding:24px"><div style="font-family:var(--serif);font-weight:800;font-size:26px;color:var(--ink)">Meu perfil</div><div style="color:var(--muted);margin:4px 0 18px;font-size:12.5px">Sua conta no Painel do CEO.</div><div class="fin-kpi" style="max-width:520px"><div class="fin-kpi-k">NOME</div><div style="font-size:16px;font-weight:600;margin:2px 0 12px">'+(nm||"—")+'</div><div class="fin-kpi-k">E-MAIL</div><div style="font-size:15px;margin:2px 0 16px">'+em+'</div><button class="bl-btn bl-btn-destructive" type="button" id="cfgSair">Sair da conta</button></div></div>';
-  var b=document.getElementById('cfgSair');if(b)b.addEventListener('click',sair);
+  if(window.__ucfAbrir)window.__ucfAbrir();
  }
  var _pm=selectModule;selectModule=function(m){if(m==='configuracoes'){abrirConfig();return;}return _pm(m);};
 }());
@@ -10421,8 +10418,7 @@ document.addEventListener('change',function(ev){var t=ev.target;if(!document.get
   /* liga no modulo Configuracoes existente (sem aba nova) */
   function ligar(){
     if(window.__ucfLigado) return; window.__ucfLigado=true;
-    var nav=document.querySelector('[data-module="configuracoes"]');
-    if(nav) nav.addEventListener('click', function(){ setTimeout(abrir, 0); });
+    window.__ucfAbrir=abrir;
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', ligar); else ligar();
   window.addEventListener('load', ligar);
