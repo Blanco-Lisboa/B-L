@@ -10425,3 +10425,63 @@ document.addEventListener('change',function(ev){var t=ev.target;if(!document.get
   window.addEventListener('load', ligar);
 })();
 </script>
+<style id="blRoboCss">
+#blRobo{position:fixed;right:20px;bottom:20px;z-index:60;display:flex;flex-direction:column;align-items:flex-end;gap:10px;pointer-events:none}
+#blRobo>*{pointer-events:auto}
+.blr-balao{width:76px;height:76px;padding:0;border:0;background:none;cursor:pointer;display:block;transition:transform .15s}
+.blr-balao img{display:block;width:100%;height:100%;object-fit:contain;user-select:none;-webkit-user-drag:none}
+.blr-balao:hover{transform:translateY(-2px)}
+.blr-balao.avisando{animation:blr-pulsar 1.4s ease-in-out infinite}
+@keyframes blr-pulsar{0%,100%{transform:scale(1);filter:drop-shadow(0 0 0 rgba(237,180,73,0))}50%{transform:scale(1.1);filter:drop-shadow(0 0 10px rgba(237,180,73,.6))}}
+.blr-chat{position:relative;width:min(380px,calc(100vw - 32px));height:min(560px,calc(100vh - 150px));display:flex;flex-direction:column;background:var(--panel,#fff);border:1px solid var(--navy-900,#011D3A);border-radius:12px;overflow:hidden;box-shadow:0 18px 44px rgba(1,29,58,.22)}
+.blr-chat[hidden]{display:none}
+.blr-cab{display:flex;align-items:center;gap:10px;padding:13px 16px;background:var(--navy-900,#011D3A);color:#fff;border-bottom:3px solid var(--gold-500,#EDB449)}
+.blr-cab-av{width:30px;height:30px;border-radius:8px;object-fit:contain;background:rgba(255,255,255,.08);flex:none}
+.blr-cab b{font-family:var(--serif,'Archivo',sans-serif);font-size:15px;letter-spacing:-.01em;display:flex;align-items:center;gap:5px}
+.blr-ponto{width:7px;height:7px;border-radius:50%;background:var(--gold-500,#EDB449);display:inline-block}
+.blr-cab small{display:block;font-size:11px;opacity:.72;margin-top:1px}
+.blr-x{margin-left:auto;border:0;background:none;color:#fff;cursor:pointer;opacity:.8;font-size:18px;line-height:1;padding:2px 4px}
+.blr-x:hover{opacity:1}
+.blr-msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;background:var(--panel-2,#F6F8FA)}
+.blr-msg{max-width:85%;padding:9px 12px;font-size:13px;line-height:1.45;border-radius:10px;white-space:pre-wrap}
+.blr-msg.ag{align-self:flex-start;background:#fff;border:1px solid var(--line,#E1E6EB);border-left:2px solid var(--gold-500,#EDB449)}
+.blr-msg.eu{align-self:flex-end;background:var(--navy-900,#011D3A);color:#fff}
+.blr-escrever{display:flex;gap:8px;align-items:flex-end;padding:10px;border-top:1px solid var(--line,#E1E6EB);background:var(--panel,#fff)}
+.blr-texto{flex:1;resize:none;border:1px solid var(--line,#E1E6EB);border-radius:8px;padding:9px 11px;font:inherit;font-size:13px;color:var(--ink,#101820);background:var(--panel,#fff);max-height:120px}
+.blr-texto:focus{outline:none;border-color:var(--gold-500,#EDB449)}
+.blr-enviar{flex:none;border:0;border-radius:8px;padding:0 16px;height:38px;background:var(--navy-900,#011D3A);color:#fff;font:inherit;font-weight:600;cursor:pointer}
+.blr-enviar:hover{background:var(--navy-800,#0A2A4C)}
+.blr-entrando{animation:blr-sobe .22s ease}
+@keyframes blr-sobe{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+</style>
+<script id="blRoboJs">
+(function(){
+  var BASE='https://wfqcoocfastgsfgegpcm.supabase.co/storage/v1/object/public/app-bl/';
+  var IMG={fechado:BASE+'agente-fechado.webp',aberto:BASE+'agente-aberto.webp',animado:BASE+'agente-animado.webp'};
+  var aberto=false,mouse=false;
+  function imagem(){var img=document.querySelector('#blRobo [data-blr-balao] img');if(!img)return;var src=aberto?IMG.aberto:(mouse?IMG.animado:IMG.fechado);if(img.getAttribute('src')!==src)img.setAttribute('src',src);}
+  function pintar(){var chat=document.getElementById('blrChat'),bal=document.querySelector('#blRobo [data-blr-balao]');if(!chat)return;
+    if(aberto){chat.hidden=false;chat.classList.add('blr-entrando');setTimeout(function(){chat.classList.remove('blr-entrando');},240);}else{chat.hidden=true;}
+    if(bal)bal.setAttribute('aria-expanded',String(aberto));imagem();}
+  function montar(){
+    if(document.getElementById('blRobo'))return;
+    var r=document.createElement('div');r.id='blRobo';
+    r.innerHTML='<section class="blr-chat" id="blrChat" role="dialog" aria-label="Conversa com o DevIT" hidden>'
+     +'<header class="blr-cab"><img class="blr-cab-av" src="'+IMG.aberto+'" alt=""><div><b>DevIT<i class="blr-ponto" aria-hidden="true"></i></b><small>Assistente do Painel</small></div><button type="button" class="blr-x" data-blr-x aria-label="Fechar">×</button></header>'
+     +'<div class="blr-msgs" id="blrMsgs"></div>'
+     +'<form class="blr-escrever" data-blr-form><textarea class="blr-texto" rows="2" placeholder="Escreva uma mensagem…" aria-label="Mensagem"></textarea><button class="blr-enviar" type="submit">Enviar</button></form>'
+     +'</section>'
+     +'<button type="button" class="blr-balao" data-blr-balao aria-expanded="false" aria-controls="blrChat" aria-label="Abrir a conversa com o DevIT"><img src="'+IMG.fechado+'" alt="" width="1254" height="1254" draggable="false"></button>';
+    document.body.appendChild(r);
+    try{new Image().src=IMG.aberto;new Image().src=IMG.animado;}catch(e){}
+    var bal=r.querySelector('[data-blr-balao]');
+    bal.addEventListener('click',function(){aberto=!aberto;pintar();});
+    bal.addEventListener('mouseenter',function(){mouse=true;imagem();});
+    bal.addEventListener('mouseleave',function(){mouse=false;imagem();});
+    r.querySelector('[data-blr-x]').addEventListener('click',function(){aberto=false;pintar();});
+    r.querySelector('[data-blr-form]').addEventListener('submit',function(e){e.preventDefault();});
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',montar);else montar();
+  window.addEventListener('load',montar);
+})();
+</script>
