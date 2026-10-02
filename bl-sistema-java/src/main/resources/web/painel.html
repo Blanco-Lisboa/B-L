@@ -10428,12 +10428,12 @@ document.addEventListener('change',function(ev){var t=ev.target;if(!document.get
 <style id="blRoboCss">
 #blRobo{position:fixed;right:20px;bottom:20px;z-index:60;display:flex;flex-direction:column;align-items:flex-end;gap:10px;pointer-events:none}
 #blRobo>*{pointer-events:auto}
-.blr-balao{width:76px;height:76px;padding:0;border:0;background:none;cursor:pointer;display:block;transition:transform .15s}
+.blr-balao{width:54px;height:54px;padding:0;border:0;background:none;cursor:pointer;display:block;transition:transform .15s}
 .blr-balao img{display:block;width:100%;height:100%;object-fit:contain;user-select:none;-webkit-user-drag:none}
 .blr-balao:hover{transform:translateY(-2px)}
 .blr-balao.avisando{animation:blr-pulsar 1.4s ease-in-out infinite}
 @keyframes blr-pulsar{0%,100%{transform:scale(1);filter:drop-shadow(0 0 0 rgba(237,180,73,0))}50%{transform:scale(1.1);filter:drop-shadow(0 0 10px rgba(237,180,73,.6))}}
-.blr-chat{position:relative;width:min(380px,calc(100vw - 32px));height:min(560px,calc(100vh - 150px));display:flex;flex-direction:column;background:var(--panel,#fff);border:1px solid var(--navy-900,#011D3A);border-radius:12px;overflow:hidden;box-shadow:0 18px 44px rgba(1,29,58,.22)}
+.blr-chat{position:relative;width:min(330px,calc(100vw - 32px));height:min(480px,calc(100vh - 150px));display:flex;flex-direction:column;background:var(--panel,#fff);border:1px solid var(--navy-900,#011D3A);border-radius:12px;overflow:hidden;box-shadow:0 18px 44px rgba(1,29,58,.22)}
 .blr-chat[hidden]{display:none}
 .blr-cab{display:flex;align-items:center;gap:10px;padding:13px 16px;background:var(--navy-900,#011D3A);color:#fff;border-bottom:3px solid var(--gold-500,#EDB449)}
 .blr-cab-av{width:30px;height:30px;border-radius:8px;object-fit:contain;background:rgba(255,255,255,.08);flex:none}
@@ -10458,6 +10458,8 @@ document.addEventListener('change',function(ev){var t=ev.target;if(!document.get
 (function(){
   var BASE='https://wfqcoocfastgsfgegpcm.supabase.co/storage/v1/object/public/app-bl/';
   var IMG={fechado:BASE+'agente-fechado.webp',aberto:BASE+'agente-aberto.webp',animado:BASE+'agente-animado.webp'};
+  var GREET='Oi! Eu sou o Agente IT. 🙂 Ainda não estou ativo de verdade, mas logo logo vou poder te ajudar por aqui — recebendo seus pedidos de ajuste no sistema e até ideias novas que você queira criar. Pode escrever à vontade.';
+  var RESP='Valeu por escrever! 🙂 Por enquanto ainda não estou ativo, mas em breve vou poder cuidar disso pra você — ajustes no sistema e ideias novas. Já já a gente resolve junto.';
   var aberto=false,mouse=false;
   function imagem(){var img=document.querySelector('#blRobo [data-blr-balao] img');if(!img)return;var src=aberto?IMG.aberto:(mouse?IMG.animado:IMG.fechado);if(img.getAttribute('src')!==src)img.setAttribute('src',src);}
   function pintar(){var chat=document.getElementById('blrChat'),bal=document.querySelector('#blRobo [data-blr-balao]');if(!chat)return;
@@ -10466,12 +10468,12 @@ document.addEventListener('change',function(ev){var t=ev.target;if(!document.get
   function montar(){
     if(document.getElementById('blRobo'))return;
     var r=document.createElement('div');r.id='blRobo';
-    r.innerHTML='<section class="blr-chat" id="blrChat" role="dialog" aria-label="Conversa com o DevIT" hidden>'
-     +'<header class="blr-cab"><img class="blr-cab-av" src="'+IMG.aberto+'" alt=""><div><b>DevIT<i class="blr-ponto" aria-hidden="true"></i></b><small>Assistente do Painel</small></div><button type="button" class="blr-x" data-blr-x aria-label="Fechar">×</button></header>'
-     +'<div class="blr-msgs" id="blrMsgs"></div>'
+    r.innerHTML='<section class="blr-chat" id="blrChat" role="dialog" aria-label="Conversa com o Agente IT." hidden>'
+     +'<header class="blr-cab"><img class="blr-cab-av" src="'+IMG.aberto+'" alt=""><div><b>Agente IT.<i class="blr-ponto" aria-hidden="true"></i></b><small>Assistente do Painel</small></div><button type="button" class="blr-x" data-blr-x aria-label="Fechar">×</button></header>'
+     +'<div class="blr-msgs" id="blrMsgs"><div class="blr-msg ag">'+GREET+'</div></div>'
      +'<form class="blr-escrever" data-blr-form><textarea class="blr-texto" rows="2" placeholder="Escreva uma mensagem…" aria-label="Mensagem"></textarea><button class="blr-enviar" type="submit">Enviar</button></form>'
      +'</section>'
-     +'<button type="button" class="blr-balao" data-blr-balao aria-expanded="false" aria-controls="blrChat" aria-label="Abrir a conversa com o DevIT"><img src="'+IMG.fechado+'" alt="" width="1254" height="1254" draggable="false"></button>';
+     +'<button type="button" class="blr-balao" data-blr-balao aria-expanded="false" aria-controls="blrChat" aria-label="Abrir a conversa com o Agente IT."><img src="'+IMG.fechado+'" alt="" width="1254" height="1254" draggable="false"></button>';
     document.body.appendChild(r);
     try{new Image().src=IMG.aberto;new Image().src=IMG.animado;}catch(e){}
     var bal=r.querySelector('[data-blr-balao]');
@@ -10479,7 +10481,13 @@ document.addEventListener('change',function(ev){var t=ev.target;if(!document.get
     bal.addEventListener('mouseenter',function(){mouse=true;imagem();});
     bal.addEventListener('mouseleave',function(){mouse=false;imagem();});
     r.querySelector('[data-blr-x]').addEventListener('click',function(){aberto=false;pintar();});
-    r.querySelector('[data-blr-form]').addEventListener('submit',function(e){e.preventDefault();});
+    r.querySelector('[data-blr-form]').addEventListener('submit',function(e){e.preventDefault();
+      var ta=r.querySelector('.blr-texto'),msgs=document.getElementById('blrMsgs');
+      var t=((ta&&ta.value)||'').trim();if(!t||!msgs)return;
+      var u=document.createElement('div');u.className='blr-msg eu';u.textContent=t;msgs.appendChild(u);
+      ta.value='';msgs.scrollTop=msgs.scrollHeight;
+      setTimeout(function(){var a=document.createElement('div');a.className='blr-msg ag';a.textContent=RESP;msgs.appendChild(a);msgs.scrollTop=msgs.scrollHeight;},480);
+    });
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',montar);else montar();
   window.addEventListener('load',montar);
